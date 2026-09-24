@@ -134,30 +134,46 @@ const mobSettings = {
 const About = ({ t }) => {
   const teamLeaders = [
     {
-      name: t("Vignesh"),
-      role: t("role"),
-      img: "/hr/h6.jpg",
-      crop: "object-[20%_75%]",
+      name: "I Vinay Kumar",
+      role: "HR & Accountant",
+      img: "/hr/vinaykumar.png",
+      crop: "object-top",
     },
     {
-      name: t("Hemachandiran Somaskandan"),
-
-      role: t("hemarole"),
-      img: "/hr/h7.jpg",
-      crop: "object-[20%_85%]",
-    },
-
-    {
-      name: t("Chen Shonk Yun"),
-      role: t("chenrole"),
-      img: "/hr/h8.jpg",
-      crop: "object-[20%_75%]",
+      name: "Hemachandiran S",
+      role: "Learning and Development Manager",
+      img: "/hr/Hemachandiran.png",
+      crop: "object-top",
     },
     {
-      name: t("Veena Mandeep"),
-      role: t("veenarole"),
-      img: "/hr/h4.jpg",
-      crop: "object-[10%_20%]  ",
+      name: "Ramanan A",
+      role: "Team Lead",
+      img: "/hr/Ramanan.png",
+      crop: "object-top",
+    },
+    {
+      name: "Sumathi S",
+      role: "Admin",
+      img: "/hr/Sumathi.png",
+      crop: "object-top",
+    },
+    {
+      name: "Vignesh M",
+      role: "HR Executive",
+      img: "/hr/Vignesh.png",
+      crop: "object-top",
+    },
+    {
+      name: "Abdul Munaf",
+      role: "Site Supervisor",
+      img: "/hr/AbdulMunaf.png",
+      crop: "object-top",
+    },
+    {
+      name: "Naveen Balaji",
+      role: "HR Executive",
+      img: "/hr/naveenbalaji.png",
+      crop: "object-top",
     },
   ];
 
@@ -269,7 +285,7 @@ const About = ({ t }) => {
             </div>
           </div>
           <div className="w-full pt-10 ">
-            <div className="grid gap-6 md:gap-5 sm:grid-cols-2 md:flex  ">
+            <div className="grid gap-6 md:gap-8 sm:grid-cols-2 md:flex md:flex-wrap md:justify-center">
               {teamLeaders.map((member, index) => (
                 <div
                   key={index}
