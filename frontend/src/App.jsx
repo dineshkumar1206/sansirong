@@ -12,6 +12,7 @@ import OnsiteService from "./component/Oss/OnsiteService";
 import Languageinterpretation from "./component/Language interpretation/Languageinterpretation";
 import Trading from "./component/Trading/Trading";
 import Language from "./component/Launguage";
+import Dashboard from "../dashboard/Dashboard";
 import translations from "./translation.json";
 
 const App = () => {
@@ -53,6 +54,7 @@ const App = () => {
         <Route path="/careers" element={<Careers t={t} />} />
         <Route path="/language" element={<Languageinterpretation t={t} />} />
         <Route path="/trading" element={<Trading t={t} />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </>
   );

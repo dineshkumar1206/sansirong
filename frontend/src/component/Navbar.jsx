@@ -197,6 +197,21 @@ function Navbar({ aboutScroll, t }) {
           CAREERS
           {/* {t("careers")} */}
         </Link>
+        <Link
+          to="/dashboard"
+          onClick={closeMenu}
+          className="text-[15px] transition-all duration-300 ease-in-out hover:text-white"
+          style={{
+            transition: "all 0.3s ease-in-out",
+          }}
+          onMouseEnter={(e) =>
+            (e.target.style.textShadow =
+              "0 0 10px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.6), 0 0 30px rgba(0,0,0,0.6)")
+          }
+          onMouseLeave={(e) => (e.target.style.textShadow = "none")}
+        >
+          DASHBOARD
+        </Link>
       </div>
 
       {/* Mobile Hamburger Icon */}
@@ -268,6 +283,12 @@ function Navbar({ aboutScroll, t }) {
           CAREERS
           {/* {t("careers")} */}
           {location.pathname === "/contact" && (
+            <div className="w-full h-[2px] bg-[#fa160e] rounded-full"></div>
+          )}
+        </Link>
+        <Link to="/dashboard" onClick={closeMenu} className={` text-[15px]`}>
+          DASHBOARD
+          {location.pathname === "/dashboard" && (
             <div className="w-full h-[2px] bg-[#fa160e] rounded-full"></div>
           )}
         </Link>
