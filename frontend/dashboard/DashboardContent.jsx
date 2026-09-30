@@ -1,23 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { BsGrid3X3GapFill } from 'react-icons/bs';
 
 const DashboardContent = () => {
+  const [selectedVendor, setSelectedVendor] = useState('ALL');
+  const [selectedSite, setSelectedSite] = useState('ALL');
+
   return (
-    <div className="w-full bg-[#f4f7f9] min-h-screen p-8" style={{
-        backgroundImage: 'linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)',
-        backgroundSize: '20px 20px'
-    }}>
+    <>
+      <style>
+        {`@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap');`}
+      </style>
+      <div className="w-full bg-[#f4f7f9] min-h-screen p-8" style={{
+          fontFamily: "'Archivo', sans-serif",
+          backgroundImage: 'linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)',
+          backgroundSize: '20px 20px'
+      }}>
       
       {/* Action Bar */}
       <div className="flex items-center space-x-3 mb-4">
-        <button className="bg-gradient-to-r from-[#29b6f6] to-[#0288d1] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center">
+        <button className="bg-gradient-to-r from-[#29b6f6] to-[#0288d1] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center cursor-pointer">
           <span className="mr-2 text-lg leading-none">+</span> Add Requirement
         </button>
-        <button className="bg-[#d32f2f] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:bg-[#b71c1c] transition-all flex items-center">
+        <button className="bg-[#d32f2f] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:bg-[#b71c1c] active:scale-95 transition-all flex items-center cursor-pointer">
           <FiRefreshCw className="mr-2" /> Sync from Google Sheet
         </button>
-        <button className="bg-white border border-gray-300 text-gray-600 px-5 py-2 rounded-full font-bold text-sm shadow-sm hover:bg-gray-50 transition-all flex items-center">
+        <button className="bg-white border border-gray-300 text-gray-600 px-5 py-2 rounded-full font-bold text-sm shadow-sm hover:bg-gray-50 active:scale-95 transition-all flex items-center cursor-pointer">
           Upload file
         </button>
       </div>
@@ -35,18 +43,18 @@ const DashboardContent = () => {
         <div className="flex items-center">
           <span className="text-gray-500 font-bold text-[11px] tracking-widest uppercase w-20">Vendor</span>
           <div className="flex flex-wrap gap-2">
-            <button className="bg-[#d32f2f] text-white px-4 py-1 rounded-md text-xs font-bold shadow-sm">ALL</button>
+            <button onClick={() => setSelectedVendor('ALL')} className={`${selectedVendor === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>ALL</button>
             {['ASM', 'TEAL', 'SAEJONG', 'LUSTER', 'INDO-MIM', 'WOW TOP', 'BSC', 'CEAT', 'JAXIS', 'ALLEGRO'].map(vendor => (
-              <button key={vendor} className="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-md text-[11px] font-bold shadow-sm hover:bg-gray-50">{vendor}</button>
+              <button key={vendor} onClick={() => setSelectedVendor(vendor)} className={`${selectedVendor === vendor ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>{vendor}</button>
             ))}
           </div>
         </div>
         <div className="flex items-center">
           <span className="text-gray-500 font-bold text-[11px] tracking-widest uppercase w-20 leading-tight">CM<br/>Site</span>
           <div className="flex flex-wrap gap-2">
-            <button className="bg-[#d32f2f] text-white px-4 py-1 rounded-md text-xs font-bold shadow-sm">ALL</button>
+            <button onClick={() => setSelectedSite('ALL')} className={`${selectedSite === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>ALL</button>
             {['FXBL', 'YUZHAN', 'TEHR', 'FIT', 'FXCN', 'TESS', 'PTI', 'CEAT', 'DELHI', 'FXBLPTI', 'WOWTEK'].map(site => (
-              <button key={site} className="bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-md text-[11px] font-bold shadow-sm hover:bg-gray-50">{site}</button>
+              <button key={site} onClick={() => setSelectedSite(site)} className={`${selectedSite === site ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>{site}</button>
             ))}
           </div>
         </div>
@@ -194,6 +202,7 @@ const DashboardContent = () => {
       </div>
 
     </div>
+    </>
   );
 };
 
