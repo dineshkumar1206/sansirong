@@ -3,6 +3,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}", "./dashboard/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        mono: ['"JetBrains Mono"', 'monospace'],
+      },
       keyframes: {
         "ping-slow": {
           "0%": { transform: "scale(1)", opacity: "1" },

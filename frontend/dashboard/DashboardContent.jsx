@@ -9,9 +9,11 @@ const DashboardContent = () => {
   return (
     <>
       <style>
-        {`@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap');`}
+        {`@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+          button { font-family: 'JetBrains Mono', monospace !important; }
+        `}
       </style>
-      <div className="w-full bg-[#f4f7f9] min-h-screen p-8" style={{
+      <div className="w-full bg-[#f4f7f9] min-h-screen px-8 md:px-16 py-8" style={{
           fontFamily: "'Archivo', sans-serif",
           backgroundImage: 'linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)',
           backgroundSize: '20px 20px'
@@ -32,8 +34,8 @@ const DashboardContent = () => {
 
       {/* Warning Message */}
       <div className="mb-6">
-        <p className="text-[#d32f2f] text-xs font-semibold tracking-wide">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#d32f2f] mr-2"></span>
+        <p className="text-[#ef4444] text-[10px] font-semibold tracking-wide flex items-center">
+          <span className="inline-block w-1.5 h-1.5 rotate-45 bg-[#ef4444] mr-2"></span>
           Couldn't reach the Google Sheet (Failed to fetch). Showing last saved data. Live sync works only on the deployed Netlify site.
         </p>
       </div>
@@ -72,12 +74,12 @@ const DashboardContent = () => {
           <div key={i} className={`bg-white rounded-xl p-5 shadow-sm border border-gray-100 bg-gradient-to-tr ${stat.glow} to-white relative overflow-hidden`}>
              <h3 className="text-gray-600 text-[10px] font-extrabold tracking-widest uppercase mb-1">{stat.title}</h3>
              <div className="flex items-baseline">
-                <span className={`text-4xl font-black ${stat.valueColor || 'text-gray-900'}`}>
+                <span className={`font-mono tracking-tighter text-4xl font-black ${stat.valueColor || 'text-gray-900'}`}>
                     {stat.value.replace('%','')}
                 </span>
-                {stat.value.includes('%') && <span className={`text-xl font-bold ml-1 ${stat.suffixColor || 'text-gray-900'}`}>%</span>}
+                {stat.value.includes('%') && <span className={`font-mono tracking-tighter text-xl font-bold ml-1 ${stat.suffixColor || 'text-gray-900'}`}>%</span>}
              </div>
-             <p className="text-gray-400 text-[10px] font-medium mt-1">{stat.desc}</p>
+             <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight" style={{ zoom: 0.75 }}>{stat.desc}</p>
           </div>
         ))}
       </div>
@@ -102,99 +104,99 @@ const DashboardContent = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         
         {/* Card 1 */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-[#d32f2f] relative">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-[#d32f2f] relative">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-2 h-2 rounded-full bg-[#d32f2f] mr-2"></span> ATTRITION RATE
+               <span className="w-1.5 h-1.5 rotate-45 bg-[#d32f2f] mr-2"></span> ATTRITION RATE
             </h3>
             <span className="bg-[#d32f2f] text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">HIGH</span>
           </div>
-          <div className="text-4xl font-black text-[#d32f2f] mb-2">33%</div>
-          <p className="text-gray-600 text-xs font-medium leading-relaxed">
+          <div className="font-mono tracking-tighter text-5xl font-black text-[#d32f2f] mb-2">33%</div>
+          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
             Critical — roughly 1 in 4 have left. Retention needs urgent focus.
           </p>
         </div>
 
         {/* Card 2 */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-green-500 relative">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-green-500 relative">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span> EARLY EXITS (&lt;3 MO)
+               <span className="w-1.5 h-1.5 rotate-45 bg-green-500 mr-2"></span> EARLY EXITS (&lt;3 MO)
             </h3>
             <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">OK</span>
           </div>
-          <div className="text-4xl font-black text-green-500 mb-2">13%</div>
-          <p className="text-gray-600 text-xs font-medium leading-relaxed">
+          <div className="font-mono tracking-tighter text-5xl font-black text-green-500 mb-2">13%</div>
+          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
             Early attrition is under control.
           </p>
         </div>
 
         {/* Card 3 */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-orange-500 relative">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-orange-500 relative">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span> SKILL READINESS (L2+)
+               <span className="w-1.5 h-1.5 rotate-45 bg-orange-500 mr-2"></span> SKILL READINESS (L2+)
             </h3>
             <span className="bg-orange-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">BUILD</span>
           </div>
-          <div className="text-4xl font-black text-orange-500 mb-2">53%</div>
-          <p className="text-gray-600 text-xs font-medium leading-relaxed">
+          <div className="font-mono tracking-tighter text-5xl font-black text-orange-500 mb-2">53%</div>
+          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
             Skill build-up needed to strengthen the expert tier.
           </p>
         </div>
 
         {/* Card 4 */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-green-500 relative">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-green-500 relative">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span> UNCERTIFIED / L0
+               <span className="w-1.5 h-1.5 rotate-45 bg-green-500 mr-2"></span> UNCERTIFIED / L0
             </h3>
             <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">OK</span>
           </div>
-          <div className="text-4xl font-black text-green-500 mb-2">39</div>
-          <p className="text-gray-600 text-xs font-medium leading-relaxed">
+          <div className="font-mono tracking-tighter text-5xl font-black text-green-500 mb-2">39</div>
+          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
             Engineers without an L2+ certification — the priority pool for upskilling.
           </p>
         </div>
 
         {/* Card 5 */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-green-500 relative">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-green-500 relative">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span> TOP VENDOR SHARE
+               <span className="w-1.5 h-1.5 rotate-45 bg-green-500 mr-2"></span> TOP VENDOR SHARE
             </h3>
             <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">ASM</span>
           </div>
-          <div className="text-4xl font-black text-green-500 mb-2">30%</div>
-          <p className="text-gray-600 text-xs font-medium leading-relaxed">
+          <div className="font-mono tracking-tighter text-5xl font-black text-green-500 mb-2">30%</div>
+          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
             Balanced vendor mix, low concentration risk.
           </p>
         </div>
 
         {/* Card 6 */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-orange-500 relative">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-orange-500 relative">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span> SITES W/O L3 EXPERT
+               <span className="w-1.5 h-1.5 rotate-45 bg-orange-500 mr-2"></span> SITES W/O L3 EXPERT
             </h3>
             <span className="bg-orange-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">RISK</span>
           </div>
-          <div className="text-4xl font-black text-orange-500 mb-2">3</div>
-          <p className="text-gray-600 text-xs font-medium leading-relaxed">
+          <div className="font-mono tracking-tighter text-5xl font-black text-orange-500 mb-2">3</div>
+          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
             Sites with no expert on-site — single-point-of-failure risk: FIT, PTI, FXBLPTI
           </p>
         </div>
         
         {/* Card 7 */}
-        <div className="bg-white rounded-xl p-5 shadow-sm border-l-4 border-l-orange-500 relative">
+        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-orange-500 relative">
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span> INTERVIEW CONVERSION
+               <span className="w-1.5 h-1.5 rotate-45 bg-orange-500 mr-2"></span> INTERVIEW CONVERSION
             </h3>
             <span className="bg-orange-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">LOW</span>
           </div>
-          <div className="text-4xl font-black text-orange-500 mb-2">3%</div>
-          <p className="text-gray-600 text-xs font-medium leading-relaxed">
+          <div className="font-mono tracking-tighter text-5xl font-black text-orange-500 mb-2">3%</div>
+          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
             7 of 276 interviewed candidates converted to hires.
           </p>
         </div>
