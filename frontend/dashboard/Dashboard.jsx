@@ -3,6 +3,8 @@ import DashboardHero from './DashboardHero';
 import DashboardContent from './DashboardContent';
 import DashboardSkill from './DashboardSkill';
 import DashboardChart1 from './DashboardChart-1';
+import DashboardWorkflow from './DashboardWorkflow';
+import DashboardLevel from './DashboardLevel';
 
 const Dashboard = () => {
   return (
@@ -11,6 +13,8 @@ const Dashboard = () => {
       <DashboardContent />
       <DashboardSkill />
       <DashboardChart1 />
+      <DashboardWorkflow />
+      <DashboardLevel />
     </div>
   );
 };

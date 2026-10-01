@@ -1,10 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { BsGrid3X3GapFill } from 'react-icons/bs';
+import * as XLSX from 'xlsx';
 
 const DashboardContent = () => {
   const [selectedVendor, setSelectedVendor] = useState('ALL');
   const [selectedSite, setSelectedSite] = useState('ALL');
+  const [vendors, setVendors] = useState(['ASM', 'TEAL', 'SAEJONG', 'LUSTER', 'INDO-MIM', 'WOW TOP', 'BSC', 'CEAT', 'JAXIS', 'ALLEGRO']);
+  const [sites, setSites] = useState(['FXBL', 'YUZHAN', 'TEHR', 'FIT', 'FXCN', 'TESS', 'PTI', 'CEAT', 'DELHI', 'FXBLPTI', 'WOWTEK']);
+  const [stats, setStats] = useState({
+    engineers: "145",
+    avgAge: "24.1",
+    l2Certified: "53%",
+    vendorsCount: "10",
+    cmSitesCount: "11"
+  });
+
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const bstr = evt.target.result;
+      const wb = XLSX.read(bstr, { type: 'binary' });
+      // Search for the specific contact list sheet, or fallback to the first one
+      const sheetName = wb.SheetNames.find(name => name.toLowerCase().includes('contact list')) || wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(ws);
+      
+      let uniqueVendors = new Set();
+      let uniqueSites = new Set();
+      let engineerCount = 0;
+
+      data.forEach(row => {
+        // Find columns dynamically in case of trailing spaces or different capitalization
+        const vendKey = Object.keys(row).find(key => key.toLowerCase().includes('vend'));
+        const cmKey = Object.keys(row).find(key => key.toLowerCase().includes('cm') && !key.toLowerCase().includes('id'));
+        const nameKey = Object.keys(row).find(key => key.toLowerCase() === 'name');
+        
+        if (vendKey && row[vendKey]) uniqueVendors.add(row[vendKey].toString().trim());
+        if (cmKey && row[cmKey]) uniqueSites.add(row[cmKey].toString().trim());
+        if (nameKey && row[nameKey]) engineerCount++;
+      });
+
+      const newVendors = Array.from(uniqueVendors).filter(Boolean);
+      const newSites = Array.from(uniqueSites).filter(Boolean);
+
+      if (newVendors.length > 0) setVendors(newVendors);
+      if (newSites.length > 0) setSites(newSites);
+      
+      setStats(prev => ({
+        ...prev,
+        engineers: engineerCount > 0 ? engineerCount.toString() : prev.engineers,
+        vendorsCount: newVendors.length > 0 ? newVendors.length.toString() : prev.vendorsCount,
+        cmSitesCount: newSites.length > 0 ? newSites.length.toString() : prev.cmSitesCount
+      }));
+    };
+    reader.readAsBinaryString(file);
+  };
 
   return (
     <>
@@ -18,17 +74,27 @@ const DashboardContent = () => {
           backgroundImage: 'linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)',
           backgroundSize: '20px 20px'
       }}>
-      
+        
       {/* Action Bar */}
       <div className="flex items-center space-x-3 mb-4">
-        <button className="bg-gradient-to-r from-[#29b6f6] to-[#0288d1] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center cursor-pointer">
+        <button className="bg-gradient-to-r from-[#29b6f6] to-[#0288d1] text-white px-5 py-2 rounded-md font-bold text-sm shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center cursor-pointer">
           <span className="mr-2 text-lg leading-none">+</span> Add Requirement
         </button>
-        <button className="bg-[#d32f2f] text-white px-5 py-2 rounded-full font-bold text-sm shadow-md hover:bg-[#b71c1c] active:scale-95 transition-all flex items-center cursor-pointer">
+        <button className="bg-[#d32f2f] text-white px-5 py-2 rounded-md font-bold text-sm shadow-md hover:bg-[#b71c1c] active:scale-95 transition-all flex items-center cursor-pointer">
           <FiRefreshCw className="mr-2" /> Sync from Google Sheet
         </button>
-        <button className="bg-white border border-gray-300 text-gray-600 px-5 py-2 rounded-full font-bold text-sm shadow-sm hover:bg-gray-50 active:scale-95 transition-all flex items-center cursor-pointer">
-          Upload file
+        <input 
+          type="file" 
+          accept=".xlsx, .xls" 
+          ref={fileInputRef} 
+          style={{ display: 'none' }} 
+          onChange={handleFileUpload} 
+        />
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          className="bg-white border border-gray-300 text-gray-600 px-5 py-2 rounded-md font-bold text-sm shadow-sm hover:bg-gray-50 active:scale-95 transition-all flex items-center cursor-pointer"
+        >
+          <FiUpload className="mr-2" /> Upload file
         </button>
       </div>
 
@@ -46,7 +112,7 @@ const DashboardContent = () => {
           <span className="text-gray-500 font-bold text-[11px] tracking-widest uppercase w-20">Vendor</span>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => setSelectedVendor('ALL')} className={`${selectedVendor === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>ALL</button>
-            {['ASM', 'TEAL', 'SAEJONG', 'LUSTER', 'INDO-MIM', 'WOW TOP', 'BSC', 'CEAT', 'JAXIS', 'ALLEGRO'].map(vendor => (
+            {vendors.map(vendor => (
               <button key={vendor} onClick={() => setSelectedVendor(vendor)} className={`${selectedVendor === vendor ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>{vendor}</button>
             ))}
           </div>
@@ -55,7 +121,7 @@ const DashboardContent = () => {
           <span className="text-gray-500 font-bold text-[11px] tracking-widest uppercase w-20 leading-tight">CM<br/>Site</span>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => setSelectedSite('ALL')} className={`${selectedSite === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>ALL</button>
-            {['FXBL', 'YUZHAN', 'TEHR', 'FIT', 'FXCN', 'TESS', 'PTI', 'CEAT', 'DELHI', 'FXBLPTI', 'WOWTEK'].map(site => (
+            {sites.map(site => (
               <button key={site} onClick={() => setSelectedSite(site)} className={`${selectedSite === site ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>{site}</button>
             ))}
           </div>
@@ -65,11 +131,11 @@ const DashboardContent = () => {
       {/* Top Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
         {[
-          { title: "ENGINEERS", value: "145", desc: "Deployed (matrix)", glow: "from-red-50" },
-          { title: "AVG AGE", value: "24.1", desc: "Years - from records", glow: "from-gray-50" },
-          { title: "L2+ CERTIFIED", value: "53%", desc: "Skilled / expert tier", glow: "from-orange-50", valueColor: "text-gray-900", suffixColor: "text-orange-500" },
-          { title: "VENDORS", value: "10", desc: "Manpower suppliers", glow: "from-blue-50" },
-          { title: "CM SITES", value: "11", desc: "Deployment locations", glow: "from-green-50" }
+          { title: "ENGINEERS", value: stats.engineers, desc: "Deployed (matrix)", glow: "from-red-50" },
+          { title: "AVG AGE", value: stats.avgAge, desc: "Years - from records", glow: "from-gray-50" },
+          { title: "L2+ CERTIFIED", value: stats.l2Certified, desc: "Skilled / expert tier", glow: "from-orange-50", valueColor: "text-gray-900", suffixColor: "text-orange-500" },
+          { title: "VENDORS", value: stats.vendorsCount, desc: "Manpower suppliers", glow: "from-blue-50" },
+          { title: "CM SITES", value: stats.cmSitesCount, desc: "Deployment locations", glow: "from-green-50" }
         ].map((stat, i) => (
           <div key={i} className={`bg-white rounded-xl p-5 shadow-sm border border-gray-100 bg-gradient-to-tr ${stat.glow} to-white relative overflow-hidden`}>
              <h3 className="text-gray-600 text-[10px] font-extrabold tracking-widest uppercase mb-1">{stat.title}</h3>
