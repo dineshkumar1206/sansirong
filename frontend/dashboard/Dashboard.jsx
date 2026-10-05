@@ -5,6 +5,8 @@ import DashboardSkill from './DashboardSkill';
 import DashboardChart1 from './DashboardChart-1';
 import DashboardWorkflow from './DashboardWorkflow';
 import DashboardLevel from './DashboardLevel';
+import DashboardDemo from './Dashboard-Demo';
+import DashboardGeography from './DashboardGeography';
 
 const Dashboard = () => {
   return (
@@ -15,6 +17,8 @@ const Dashboard = () => {
       <DashboardChart1 />
       <DashboardWorkflow />
       <DashboardLevel />
+      <DashboardDemo/>
+      <DashboardGeography />
     </div>
   );
 };
