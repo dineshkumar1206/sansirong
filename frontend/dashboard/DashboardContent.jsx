@@ -18,15 +18,34 @@ const DashboardContent = () => {
 
   const fileInputRef = useRef(null);
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // First send to backend API to store in MySQL database
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await fetch('http://localhost:5000/api/upload-master', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert('File successfully uploaded to database! Metrics: ' + JSON.stringify(data.metrics));
+      } else {
+        alert('Error uploading file to DB: ' + data.error);
+      }
+    } catch (err) {
+      console.error('API Error:', err);
+      alert('Failed to connect to backend for database upload.');
+    }
+
+    // Then process locally for dashboard stats
     const reader = new FileReader();
     reader.onload = (evt) => {
       const bstr = evt.target.result;
       const wb = XLSX.read(bstr, { type: 'binary' });
-      // Search for the specific contact list sheet, or fallback to the first one
       const sheetName = wb.SheetNames.find(name => name.toLowerCase().includes('contact list')) || wb.SheetNames[0];
       const ws = wb.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json(ws);
@@ -36,7 +55,6 @@ const DashboardContent = () => {
       let engineerCount = 0;
 
       data.forEach(row => {
-        // Find columns dynamically in case of trailing spaces or different capitalization
         const vendKey = Object.keys(row).find(key => key.toLowerCase().includes('vend'));
         const cmKey = Object.keys(row).find(key => key.toLowerCase().includes('cm') && !key.toLowerCase().includes('id'));
         const nameKey = Object.keys(row).find(key => key.toLowerCase() === 'name');
