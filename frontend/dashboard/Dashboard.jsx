@@ -7,6 +7,10 @@ import DashboardWorkflow from './DashboardWorkflow';
 import DashboardLevel from './DashboardLevel';
 import DashboardDemo from './Dashboard-Demo';
 import DashboardGeography from './DashboardGeography';
+import DashboardManpower from './DashboardManpower';
+import DashboardInterview from './DashboardInterview';
+import DashboardExits from './DashboardExits';
+import DashboardBirthday from './DashboardBirthday';
 
 const Dashboard = () => {
   return (
@@ -19,7 +23,11 @@ const Dashboard = () => {
       <DashboardLevel />
       <DashboardDemo/>
       <DashboardGeography />
-    </div>
+      <DashboardManpower/>   
+      <DashboardInterview/>
+      <DashboardExits />
+      <DashboardBirthday />
+       </div>
   );
 };
 
