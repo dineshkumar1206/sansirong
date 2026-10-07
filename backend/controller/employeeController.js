@@ -135,6 +135,43 @@ const processExcelUpload = async (req, res) => {
   }
 };
 
+const getDashboardStats = async (req, res) => {
+  const { Op } = require('sequelize');
+  try {
+    const totalEngineers = await MasterData.count();
+
+    // avg age
+    const avgAgeResult = await MasterData.findAll({
+      attributes: [[MasterData.sequelize.fn('AVG', MasterData.sequelize.col('age')), 'avgAge']],
+      raw: true
+    });
+    const avgAge = avgAgeResult[0]?.avgAge ? parseFloat(avgAgeResult[0].avgAge).toFixed(1) : 0;
+
+    // vendors and counts
+    const vendorCounts = await MasterData.sequelize.query(
+      "SELECT vendor, COUNT(*) as count FROM master_data WHERE vendor IS NOT NULL AND vendor != '' GROUP BY vendor",
+      { type: MasterData.sequelize.QueryTypes.SELECT }
+    );
+
+    // cm sites and counts
+    const cmSiteCounts = await MasterData.sequelize.query(
+      "SELECT cm_site, COUNT(*) as count FROM master_data WHERE cm_site IS NOT NULL AND cm_site != '' GROUP BY cm_site",
+      { type: MasterData.sequelize.QueryTypes.SELECT }
+    );
+
+    return res.status(200).json({
+      engineers: totalEngineers,
+      avgAge: avgAge,
+      vendors: vendorCounts,
+      cmSites: cmSiteCounts
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    return res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+  }
+};
+
 module.exports = {
-  processExcelUpload
+  processExcelUpload,
+  getDashboardStats
 };

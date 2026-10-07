@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { BsGrid3X3GapFill } from 'react-icons/bs';
 import * as XLSX from 'xlsx';
@@ -6,15 +6,39 @@ import * as XLSX from 'xlsx';
 const DashboardContent = () => {
   const [selectedVendor, setSelectedVendor] = useState('ALL');
   const [selectedSite, setSelectedSite] = useState('ALL');
-  const [vendors, setVendors] = useState(['ASM', 'TEAL', 'SAEJONG', 'LUSTER', 'INDO-MIM', 'WOW TOP', 'BSC', 'CEAT', 'JAXIS', 'ALLEGRO']);
-  const [sites, setSites] = useState(['FXBL', 'YUZHAN', 'TEHR', 'FIT', 'FXCN', 'TESS', 'PTI', 'CEAT', 'DELHI', 'FXBLPTI', 'WOWTEK']);
+  const [vendors, setVendors] = useState([]);
+  const [sites, setSites] = useState([]);
   const [stats, setStats] = useState({
-    engineers: "145",
-    avgAge: "24.1",
+    engineers: "0",
+    avgAge: "0",
     l2Certified: "53%",
-    vendorsCount: "10",
-    cmSitesCount: "11"
+    vendorsCount: "0",
+    cmSitesCount: "0"
   });
+
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/dashboard-stats');
+      if (response.ok) {
+        const data = await response.json();
+        setVendors(data.vendors.map(v => ({ name: v.vendor, count: v.count })));
+        setSites(data.cmSites.map(s => ({ name: s.cm_site, count: s.count })));
+        setStats(prev => ({
+          ...prev,
+          engineers: data.engineers?.toString() || "0",
+          avgAge: data.avgAge?.toString() || "0",
+          vendorsCount: data.vendors?.length.toString() || "0",
+          cmSitesCount: data.cmSites?.length.toString() || "0"
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to fetch dashboard stats:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
 
   const fileInputRef = useRef(null);
 
@@ -33,6 +57,7 @@ const DashboardContent = () => {
       const data = await response.json();
       if (response.ok) {
         alert('File successfully uploaded to database! Metrics: ' + JSON.stringify(data.metrics));
+        fetchDashboardStats(); // Refresh stats after upload
       } else {
         alert('Error uploading file to DB: ' + data.error);
       }
@@ -40,44 +65,11 @@ const DashboardContent = () => {
       console.error('API Error:', err);
       alert('Failed to connect to backend for database upload.');
     }
-
-    // Then process locally for dashboard stats
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const bstr = evt.target.result;
-      const wb = XLSX.read(bstr, { type: 'binary' });
-      const sheetName = wb.SheetNames.find(name => name.toLowerCase().includes('contact list')) || wb.SheetNames[0];
-      const ws = wb.Sheets[sheetName];
-      const data = XLSX.utils.sheet_to_json(ws);
-      
-      let uniqueVendors = new Set();
-      let uniqueSites = new Set();
-      let engineerCount = 0;
-
-      data.forEach(row => {
-        const vendKey = Object.keys(row).find(key => key.toLowerCase().includes('vend'));
-        const cmKey = Object.keys(row).find(key => key.toLowerCase().includes('cm') && !key.toLowerCase().includes('id'));
-        const nameKey = Object.keys(row).find(key => key.toLowerCase() === 'name');
-        
-        if (vendKey && row[vendKey]) uniqueVendors.add(row[vendKey].toString().trim());
-        if (cmKey && row[cmKey]) uniqueSites.add(row[cmKey].toString().trim());
-        if (nameKey && row[nameKey]) engineerCount++;
-      });
-
-      const newVendors = Array.from(uniqueVendors).filter(Boolean);
-      const newSites = Array.from(uniqueSites).filter(Boolean);
-
-      if (newVendors.length > 0) setVendors(newVendors);
-      if (newSites.length > 0) setSites(newSites);
-      
-      setStats(prev => ({
-        ...prev,
-        engineers: engineerCount > 0 ? engineerCount.toString() : prev.engineers,
-        vendorsCount: newVendors.length > 0 ? newVendors.length.toString() : prev.vendorsCount,
-        cmSitesCount: newSites.length > 0 ? newSites.length.toString() : prev.cmSitesCount
-      }));
-    };
-    reader.readAsBinaryString(file);
+    
+    // Clear file input
+    if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -129,18 +121,26 @@ const DashboardContent = () => {
         <div className="flex items-center">
           <span className="text-gray-500 font-bold text-[11px] tracking-widest uppercase w-20">Vendor</span>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => setSelectedVendor('ALL')} className={`${selectedVendor === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>ALL</button>
+            <button onClick={() => setSelectedVendor('ALL')} className={`${selectedVendor === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>
+              ALL
+            </button>
             {vendors.map(vendor => (
-              <button key={vendor} onClick={() => setSelectedVendor(vendor)} className={`${selectedVendor === vendor ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>{vendor}</button>
+              <button key={vendor.name} onClick={() => setSelectedVendor(vendor.name)} className={`${selectedVendor === vendor.name ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>
+                {vendor.name}
+              </button>
             ))}
           </div>
         </div>
         <div className="flex items-center">
           <span className="text-gray-500 font-bold text-[11px] tracking-widest uppercase w-20 leading-tight">CM<br/>Site</span>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => setSelectedSite('ALL')} className={`${selectedSite === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>ALL</button>
+            <button onClick={() => setSelectedSite('ALL')} className={`${selectedSite === 'ALL' ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-4 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>
+              ALL
+            </button>
             {sites.map(site => (
-              <button key={site} onClick={() => setSelectedSite(site)} className={`${selectedSite === site ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>{site}</button>
+              <button key={site.name} onClick={() => setSelectedSite(site.name)} className={`${selectedSite === site.name ? 'bg-[#d32f2f] text-white border-[#d32f2f]' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'} border px-3 py-1 rounded-md text-[11px] font-bold shadow-sm active:scale-95 transition-all cursor-pointer`}>
+                {site.name}
+              </button>
             ))}
           </div>
         </div>
