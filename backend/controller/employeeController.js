@@ -19,9 +19,18 @@ const processExcelUpload = async (req, res) => {
     }
 
     const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
-    const sheetName = workbook.SheetNames.find(name => name.toLowerCase().includes('contact list')) || workbook.SheetNames[0];
+    const sheetName = workbook.SheetNames.find(name => name.toLowerCase().includes('master data')) || workbook.SheetNames.find(name => name.toLowerCase().includes('contact list')) || workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const rawData = xlsx.utils.sheet_to_json(sheet, { defval: null });
+
+    // DEBUG: Write the first row and keys to a file for inspection
+    const fs = require('fs');
+    if (rawData.length > 0) {
+      fs.writeFileSync('excel_debug.json', JSON.stringify({
+        keys: Object.keys(rawData[0]),
+        firstRow: rawData[0]
+      }, null, 2));
+    }
 
     const metrics = {
       totalProcessed: 0,
@@ -34,7 +43,13 @@ const processExcelUpload = async (req, res) => {
     const getVal = (row, ...searchKeys) => {
       const keys = Object.keys(row);
       for (const sk of searchKeys) {
-        const foundKey = keys.find(k => k.toLowerCase().replace(/[^a-z0-9]/g, '') === sk.toLowerCase().replace(/[^a-z0-9]/g, ''));
+        const cleanSk = sk.toLowerCase().replace(/[^a-z0-9]/g, '');
+        // Try exact match first
+        let foundKey = keys.find(k => k.toLowerCase().replace(/[^a-z0-9]/g, '') === cleanSk);
+        // Fallback to substring match
+        if (!foundKey) {
+          foundKey = keys.find(k => k.toLowerCase().replace(/[^a-z0-9]/g, '').includes(cleanSk) || cleanSk.includes(k.toLowerCase().replace(/[^a-z0-9]/g, '')));
+        }
         if (foundKey && row[foundKey] !== null && row[foundKey] !== undefined) return row[foundKey];
       }
       return null;
@@ -137,12 +152,19 @@ const processExcelUpload = async (req, res) => {
 
 const getDashboardStats = async (req, res) => {
   const { Op } = require('sequelize');
+  const { vendor, site } = req.query;
+
   try {
-    const totalEngineers = await MasterData.count();
+    const whereClause = {};
+    if (vendor && vendor !== 'ALL') whereClause.vendor = vendor;
+    if (site && site !== 'ALL') whereClause.cm_site = site;
+
+    const totalEngineers = await MasterData.count({ where: whereClause });
 
     // avg age
     const avgAgeResult = await MasterData.findAll({
       attributes: [[MasterData.sequelize.fn('AVG', MasterData.sequelize.col('age')), 'avgAge']],
+      where: whereClause,
       raw: true
     });
     const avgAge = avgAgeResult[0]?.avgAge ? parseFloat(avgAgeResult[0].avgAge).toFixed(1) : 0;
@@ -159,11 +181,19 @@ const getDashboardStats = async (req, res) => {
       { type: MasterData.sequelize.QueryTypes.SELECT }
     );
 
+    // matrix data
+    const matrixData = await MasterData.sequelize.query(
+      "SELECT vendor, cm_site, COUNT(*) as count FROM master_data WHERE vendor IS NOT NULL AND vendor != '' AND cm_site IS NOT NULL AND cm_site != '' GROUP BY vendor, cm_site",
+      { type: MasterData.sequelize.QueryTypes.SELECT }
+    );
+
+
     return res.status(200).json({
       engineers: totalEngineers,
       avgAge: avgAge,
       vendors: vendorCounts,
-      cmSites: cmSiteCounts
+      cmSites: cmSiteCounts,
+      matrix: matrixData
     });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
@@ -171,7 +201,18 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
+const getEmployees = async (req, res) => {
+  try {
+    const employees = await MasterData.findAll();
+    return res.status(200).json(employees);
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    return res.status(500).json({ error: 'Failed to fetch employees' });
+  }
+};
+
 module.exports = {
   processExcelUpload,
-  getDashboardStats
+  getDashboardStats,
+  getEmployees
 };

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { BsGrid3X3GapFill } from 'react-icons/bs';
 import * as XLSX from 'xlsx';
+import { DATA } from './mockData';
 
 const DashboardContent = () => {
   const [selectedVendor, setSelectedVendor] = useState('ALL');
@@ -13,22 +14,31 @@ const DashboardContent = () => {
     avgAge: "0",
     l2Certified: "53%",
     vendorsCount: "0",
-    cmSitesCount: "0"
+    cmSitesCount: "0",
+    matrix: []
   });
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/dashboard-stats');
+      const url = new URL('http://localhost:5000/api/dashboard-stats');
+      if (selectedVendor !== 'ALL') url.searchParams.append('vendor', selectedVendor);
+      if (selectedSite !== 'ALL') url.searchParams.append('site', selectedSite);
+
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
+        // Only set vendors/sites if they are empty (so we keep the full list in the UI filters)
+        // or we could just set them once, but since we always return the full list from backend, we can set it.
         setVendors(data.vendors.map(v => ({ name: v.vendor, count: v.count })));
         setSites(data.cmSites.map(s => ({ name: s.cm_site, count: s.count })));
+        
         setStats(prev => ({
           ...prev,
           engineers: data.engineers?.toString() || "0",
           avgAge: data.avgAge?.toString() || "0",
-          vendorsCount: data.vendors?.length.toString() || "0",
-          cmSitesCount: data.cmSites?.length.toString() || "0"
+          vendorsCount: selectedVendor !== 'ALL' ? "1" : (data.vendors?.length.toString() || "0"),
+          cmSitesCount: selectedSite !== 'ALL' ? "1" : (data.cmSites?.length.toString() || "0"),
+          matrix: data.matrix || []
         }));
       }
     } catch (err) {
@@ -38,9 +48,87 @@ const DashboardContent = () => {
 
   useEffect(() => {
     fetchDashboardStats();
-  }, []);
+  }, [selectedVendor, selectedSite]);
 
   const fileInputRef = useRef(null);
+
+  const computeInsights = () => {
+    const active = parseInt(stats.engineers) || 0;
+    
+    // Filter the mock data
+    const filteredExits = (DATA.exits || []).filter(e => 
+      (selectedVendor === 'ALL' || e.vendor === selectedVendor) &&
+      (selectedSite === 'ALL' || e.site === selectedSite)
+    );
+    const filteredRoster = (DATA.roster || []).filter(r => 
+      (selectedVendor === 'ALL' || r.vendor === selectedVendor) &&
+      (selectedSite === 'ALL' || r.site === selectedSite)
+    );
+    // Note: Interviews mock data doesn't seem to have vendor/site consistently, so we might just not filter them, or filter if present.
+    // For now we'll just not filter interviews, or we can assume it applies globally unless we want to map it.
+
+    const exits = filteredExits;
+    const roster = filteredRoster;
+    const ivs = DATA.interviews || [];
+    const out = [];
+
+    const SEVC = { crit: '#d32f2f', warn: '#f97316', good: '#22c55e' };
+    const push = (sev, val, label, note, tag) => out.push({ sev, val, label, note, tag, color: SEVC[sev] });
+
+    // Attrition rate
+    const attr = active + exits.length > 0 ? (exits.length / (active + exits.length)) * 100 : 0;
+    push(attr >= 25 ? 'crit' : attr >= 12 ? 'warn' : 'good', Math.round(attr) + '%', 'ATTRITION RATE',
+      attr >= 25 ? 'Critical — roughly 1 in 4 have left. Retention needs urgent focus.' : attr >= 12 ? 'Elevated turnover — worth investigating root causes.' : 'Healthy retention levels.', attr >= 25 ? 'HIGH' : attr >= 12 ? 'WATCH' : 'OK');
+
+    // Early exits <3mo
+    const te = exits.filter(e => e.tenure != null);
+    const early = te.filter(e => e.tenure < 3).length;
+    const earlyPct = te.length ? Math.round((early / te.length) * 100) : 0;
+    push(earlyPct >= 40 ? 'crit' : earlyPct >= 20 ? 'warn' : 'good', earlyPct + '%', 'EARLY EXITS (<3 MO)',
+      earlyPct >= 40 ? 'Most leavers quit within 90 days — onboarding & fit need attention.' : earlyPct >= 20 ? 'Notable early attrition — review the first-90-days experience.' : 'Early attrition is under control.', earlyPct >= 40 ? 'HIGH' : earlyPct >= 20 ? 'WATCH' : 'OK');
+
+    // Skill readiness
+    const skTot = roster.length, l2 = roster.filter(r => +r.level[1] >= 2).length;
+    const certPct = skTot ? Math.round((l2 / skTot) * 100) : 0;
+    push(certPct < 40 ? 'crit' : certPct < 60 ? 'warn' : 'good', certPct + '%', 'SKILL READINESS (L2+)',
+      certPct < 40 ? 'Low expert coverage — accelerate certification programmes.' : certPct < 60 ? 'Skill build-up needed to strengthen the expert tier.' : 'Strong certified, expert-ready base.', certPct < 40 ? 'LOW' : certPct < 60 ? 'BUILD' : 'STRONG');
+
+    // Uncertified / L0
+    const uncert = roster.filter(r => r.level === 'L0').length;
+    push(uncert > active * 0.35 ? 'warn' : 'good', uncert, 'UNCERTIFIED / L0',
+      'Engineers without an L2+ certification — the priority pool for upskilling.', uncert > active * 0.35 ? 'GAP' : 'OK');
+
+    // Top Vendor Share
+    const topV = vendors.length > 0 ? vendors.reduce((max, v) => v.count > max.count ? v : max, vendors[0]) : { name: '—', count: 0 };
+    const share = active ? Math.round((topV.count / active) * 100) : 0;
+    push(share >= 45 ? 'crit' : share >= 32 ? 'warn' : 'good', share + '%', 'TOP VENDOR SHARE',
+      share >= 45 ? `Over-reliant on ${topV.name} — supplier-concentration risk.` : share >= 32 ? `${topV.name} is the dominant supplier — monitor dependency.` : 'Balanced vendor mix, low concentration risk.', topV.name);
+
+    // Sites w/o L3 Expert
+    const siteL3 = {}; roster.forEach(r => { if (+r.level[1] === 3) siteL3[r.site] = (siteL3[r.site] || 0) + 1; });
+    const sitesActive = [...new Set(roster.map(r => r.site))];
+    const noExp = sitesActive.filter(s => !(siteL3[s] > 0));
+    push(noExp.length > 0 ? 'warn' : 'good', noExp.length, 'SITES W/O L3 EXPERT',
+      noExp.length > 0 ? 'Sites with no expert on-site — single-point-of-failure risk: ' + noExp.slice(0, 4).join(', ') + (noExp.length > 4 ? '…' : '') : 'Every active site has expert cover.', noExp.length > 0 ? 'RISK' : 'OK');
+
+    // Interview Conversion
+    const joined = ivs.filter(x => /join/i.test((x.status || '') + ' ' + (x.comment || ''))).length;
+    const conv = ivs.length ? Math.round((joined / ivs.length) * 100) : 0;
+    push(conv < 4 ? 'warn' : 'good', conv + '%', 'INTERVIEW CONVERSION',
+      `${joined} of ${ivs.length} interviewed candidates converted to hires.`, conv < 4 ? 'LOW' : 'OK');
+
+    return out;
+  };
+
+  const insights = computeInsights();
+
+  // Also calculate L2+ Certified for the top stats grid
+  const _roster = (DATA.roster || []).filter(r => 
+    (selectedVendor === 'ALL' || r.vendor === selectedVendor) &&
+    (selectedSite === 'ALL' || r.site === selectedSite)
+  );
+  const skTot = _roster.length, l2 = _roster.filter(r => +r.level[1] >= 2).length;
+  const computedL2Certified = skTot ? Math.round((l2 / skTot) * 100) + '%' : '0%';
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -70,6 +158,47 @@ const DashboardContent = () => {
     if (fileInputRef.current) {
         fileInputRef.current.value = '';
     }
+  };
+
+  // Compute Matrix Data
+  const matrixRaw = stats.matrix || [];
+  const _matrixSites = [...new Set(matrixRaw.map(m => m.cm_site))].sort((a,b) => {
+    const aTot = matrixRaw.filter(m => m.cm_site === a).reduce((sum, m) => sum + m.count, 0);
+    const bTot = matrixRaw.filter(m => m.cm_site === b).reduce((sum, m) => sum + m.count, 0);
+    return bTot - aTot; // Descending
+  });
+  const _matrixVendors = [...new Set(matrixRaw.map(m => m.vendor))].sort((a,b) => {
+    const aTot = matrixRaw.filter(m => m.vendor === a).reduce((sum, m) => sum + m.count, 0);
+    const bTot = matrixRaw.filter(m => m.vendor === b).reduce((sum, m) => sum + m.count, 0);
+    return bTot - aTot; // Descending
+  });
+
+  const getMatrixCount = (vendor, site) => {
+    const found = matrixRaw.find(m => m.vendor === vendor && m.cm_site === site);
+    return found ? found.count : 0;
+  };
+
+  const getMatrixVendorTotal = (vendor) => {
+    return matrixRaw.filter(m => m.vendor === vendor).reduce((sum, m) => sum + m.count, 0);
+  };
+
+  const getMatrixSiteTotal = (site) => {
+    return matrixRaw.filter(m => m.cm_site === site).reduce((sum, m) => sum + m.count, 0);
+  };
+
+  const matrixGrandTotal = matrixRaw.reduce((sum, m) => sum + m.count, 0);
+  const matrixMaxCount = Math.max(...matrixRaw.map(m => m.count), 1);
+
+  const getHeatmapColor = (count, isSelectedVendor, isSelectedSite, isSelectedCell) => {
+    if (!count) return 'bg-transparent text-gray-400';
+    if (isSelectedCell) return 'bg-[#b71c1c] text-white font-bold ring-2 ring-[#b71c1c] shadow-md z-10 scale-110 transition-transform';
+    if (isSelectedVendor || isSelectedSite) return 'bg-[#d32f2f] text-white font-bold';
+    
+    const ratio = count / matrixMaxCount;
+    if (ratio > 0.7) return 'bg-[#d32f2f] text-white';
+    if (ratio > 0.4) return 'bg-[#ef5350] text-white';
+    if (ratio > 0.15) return 'bg-[#ff8a80] text-white';
+    return 'bg-[#ffcdd2] text-[#d32f2f]';
   };
 
   return (
@@ -186,104 +315,21 @@ const DashboardContent = () => {
 
       {/* Insights Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        
-        {/* Card 1 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-[#d32f2f] relative">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-1.5 h-1.5 rotate-45 bg-[#d32f2f] mr-2"></span> ATTRITION RATE
-            </h3>
-            <span className="bg-[#d32f2f] text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">HIGH</span>
+          
+        {insights.map((insight, idx) => (
+          <div key={idx} className="bg-white rounded-xl p-4 shadow-sm relative" style={{ borderLeft: `4px solid ${insight.color}` }}>
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
+                 <span className="w-1.5 h-1.5 rotate-45 mr-2" style={{ backgroundColor: insight.color }}></span> {insight.label}
+              </h3>
+              <span className="text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase" style={{ backgroundColor: insight.color }}>{insight.tag}</span>
+            </div>
+            <div className="font-mono tracking-tighter text-5xl font-black mb-2" style={{ color: insight.color }}>{insight.val}</div>
+            <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
+              {insight.note}
+            </p>
           </div>
-          <div className="font-mono tracking-tighter text-5xl font-black text-[#d32f2f] mb-2">33%</div>
-          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
-            Critical — roughly 1 in 4 have left. Retention needs urgent focus.
-          </p>
-        </div>
-
-        {/* Card 2 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-green-500 relative">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-1.5 h-1.5 rotate-45 bg-green-500 mr-2"></span> EARLY EXITS (&lt;3 MO)
-            </h3>
-            <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">OK</span>
-          </div>
-          <div className="font-mono tracking-tighter text-5xl font-black text-green-500 mb-2">13%</div>
-          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
-            Early attrition is under control.
-          </p>
-        </div>
-
-        {/* Card 3 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-orange-500 relative">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-1.5 h-1.5 rotate-45 bg-orange-500 mr-2"></span> SKILL READINESS (L2+)
-            </h3>
-            <span className="bg-orange-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">BUILD</span>
-          </div>
-          <div className="font-mono tracking-tighter text-5xl font-black text-orange-500 mb-2">53%</div>
-          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
-            Skill build-up needed to strengthen the expert tier.
-          </p>
-        </div>
-
-        {/* Card 4 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-green-500 relative">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-1.5 h-1.5 rotate-45 bg-green-500 mr-2"></span> UNCERTIFIED / L0
-            </h3>
-            <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">OK</span>
-          </div>
-          <div className="font-mono tracking-tighter text-5xl font-black text-green-500 mb-2">39</div>
-          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
-            Engineers without an L2+ certification — the priority pool for upskilling.
-          </p>
-        </div>
-
-        {/* Card 5 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-green-500 relative">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-1.5 h-1.5 rotate-45 bg-green-500 mr-2"></span> TOP VENDOR SHARE
-            </h3>
-            <span className="bg-green-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">ASM</span>
-          </div>
-          <div className="font-mono tracking-tighter text-5xl font-black text-green-500 mb-2">30%</div>
-          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
-            Balanced vendor mix, low concentration risk.
-          </p>
-        </div>
-
-        {/* Card 6 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-orange-500 relative">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-1.5 h-1.5 rotate-45 bg-orange-500 mr-2"></span> SITES W/O L3 EXPERT
-            </h3>
-            <span className="bg-orange-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">RISK</span>
-          </div>
-          <div className="font-mono tracking-tighter text-5xl font-black text-orange-500 mb-2">3</div>
-          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
-            Sites with no expert on-site — single-point-of-failure risk: FIT, PTI, FXBLPTI
-          </p>
-        </div>
-        
-        {/* Card 7 */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border-l-4 border-l-orange-500 relative">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-               <span className="w-1.5 h-1.5 rotate-45 bg-orange-500 mr-2"></span> INTERVIEW CONVERSION
-            </h3>
-            <span className="bg-orange-500 text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase">LOW</span>
-          </div>
-          <div className="font-mono tracking-tighter text-5xl font-black text-orange-500 mb-2">3%</div>
-          <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
-            7 of 276 interviewed candidates converted to hires.
-          </p>
-        </div>
+        ))}
 
       </div>
 

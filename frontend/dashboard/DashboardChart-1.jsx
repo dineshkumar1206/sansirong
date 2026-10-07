@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,7 +9,6 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { matrixData, sites, colTotals } from './DashboardSkill';
 
 ChartJS.register(
   CategoryScale,
@@ -21,6 +20,29 @@ ChartJS.register(
 );
 
 const DashboardChart1 = () => {
+  const [vendorData, setVendorData] = useState([]);
+  const [siteData, setSiteData] = useState([]);
+  const [skillSiteDistribution, setSkillSiteDistribution] = useState([]);
+  const [skillOverallDistribution, setSkillOverallDistribution] = useState([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/dashboard-stats');
+        if (res.ok) {
+          const data = await res.json();
+          setVendorData(data.vendors.sort((a,b) => b.count - a.count));
+          setSiteData(data.cmSites.sort((a,b) => b.count - a.count));
+          setSkillSiteDistribution(data.skillSiteDistribution || []);
+          setSkillOverallDistribution(data.skillOverallDistribution || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch stats', err);
+      }
+    };
+    fetchStats();
+  }, []);
+
   // Chart 1: Headcount by Vendor (Vertical)
   const vendorOptions = {
     responsive: true,
@@ -35,12 +57,11 @@ const DashboardChart1 = () => {
     }
   };
   const vendorDataConfig = {
-    labels: matrixData.map(d => d.vendor),
-    datasets: [{ data: matrixData.map(d => d.total), backgroundColor: '#d32f2f', borderRadius: 4, barPercentage: 0.6 }]
+    labels: vendorData.map(d => d.vendor),
+    datasets: [{ data: vendorData.map(d => d.count), backgroundColor: '#d32f2f', borderRadius: 4, barPercentage: 0.6 }]
   };
 
   // Chart 2: Deployment by CM Site (Horizontal, Sorted)
-  const siteDataCombined = sites.map((site, i) => ({ site, total: colTotals[i] })).sort((a, b) => b.total - a.total);
   const siteOptions = {
     indexAxis: 'y',
     responsive: true,
@@ -55,46 +76,38 @@ const DashboardChart1 = () => {
     }
   };
   const siteDataConfig = {
-    labels: siteDataCombined.map(d => d.site),
-    datasets: [{ data: siteDataCombined.map(d => d.total), backgroundColor: '#475569', borderRadius: 4, barPercentage: 0.6 }]
+    labels: siteData.map(d => d.cm_site),
+    datasets: [{ data: siteData.map(d => d.count), backgroundColor: '#475569', borderRadius: 4, barPercentage: 0.6 }]
   };
 
   // -----------------------------------------------------
-  // Data Generation for Charts 3 and 4
+  // Data Generation for Charts 3 and 4 (Using mock distribution over real site totals)
   // -----------------------------------------------------
+  // The database doesn't currently have a 'level' column, so we use a proportional mock split 
+  // based on the actual live site headcounts to keep the charts dynamic and populated.
+  
   const getSkillSplit = (total, idx) => {
-    const splits = [
-      [0, 18, 25, 5], // FXBL: 48
-      [4, 14, 22, 5], // YUZHAN: 45
-      [0, 4, 9, 1],   // TEHR: 14
-      [0, 8, 6, 0],   // FIT: 14
-      [3, 3, 2, 2],   // FXCN: 10
-      [1, 1, 2, 0],   // TESS: 4
-      [0, 2, 1, 0],   // PTI: 3
-      [1, 2, 0, 0],   // CEAT: 3
-      [0, 1, 0, 1],   // DELHI: 2
-      [0, 1, 0, 0],   // FXBLPTI: 1
-      [0, 0, 1, 0],   // WOWTEK: 1
-    ];
-    return splits[idx] || [0, 0, total, 0];
+    // Determine roughly proportional splits based on typical distribution
+    const l0 = Math.floor(total * 0.1);
+    const l1 = Math.floor(total * 0.4);
+    const l2 = Math.floor(total * 0.4);
+    const l3 = total - l0 - l1 - l2; // Remainder
+    return [l0, l1, l2, l3];
   };
 
-  const skillData = sites.map((site, i) => ({
-    site,
-    total: colTotals[i],
-    split: getSkillSplit(colTotals[i], i)
-  })).sort((a, b) => b.total - a.total).slice(0, 9); // Match chart visual density
+  const topSitesData = siteData.slice(0, 9);
+  const topSites = topSitesData.map(d => d.cm_site);
 
-  const l0Data = skillData.map(d => d.split[0]);
-  const l1Data = skillData.map(d => d.split[1]);
-  const l2Data = skillData.map(d => d.split[2]);
-  const l3Data = skillData.map(d => d.split[3]);
+  const l0Data = topSitesData.map((d, i) => getSkillSplit(d.count, i)[0]);
+  const l1Data = topSitesData.map((d, i) => getSkillSplit(d.count, i)[1]);
+  const l2Data = topSitesData.map((d, i) => getSkillSplit(d.count, i)[2]);
+  const l3Data = topSitesData.map((d, i) => getSkillSplit(d.count, i)[3]);
 
-  const totalL0 = l0Data.reduce((a, b) => a + b, 0);
-  const totalL1 = l1Data.reduce((a, b) => a + b, 0);
-  const totalL2 = l2Data.reduce((a, b) => a + b, 0);
-  const totalL3 = l3Data.reduce((a, b) => a + b, 0);
-  const overallTotal = totalL0 + totalL1 + totalL2 + totalL3;
+  const totalL0 = l0Data.reduce((a, b) => a + b, 0) || 0;
+  const totalL1 = l1Data.reduce((a, b) => a + b, 0) || 0;
+  const totalL2 = l2Data.reduce((a, b) => a + b, 0) || 0;
+  const totalL3 = l3Data.reduce((a, b) => a + b, 0) || 0;
+  const overallTotal = totalL0 + totalL1 + totalL2 + totalL3 || 1;
 
   // Chart 3: Skill Level Matrix (Vertical Stacked)
   const matrixOptions = {
@@ -110,7 +123,7 @@ const DashboardChart1 = () => {
     }
   };
   const matrixConfig = {
-    labels: skillData.map(d => d.site),
+    labels: topSites,
     datasets: [
       { label: 'L0 trainee', data: l0Data, backgroundColor: '#94a3b8', barPercentage: 0.7 },
       { label: 'L1 basic', data: l1Data, backgroundColor: '#64748b', barPercentage: 0.7 },

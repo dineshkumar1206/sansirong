@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,7 +22,26 @@ ChartJS.register(
 );
 
 const DashboardGeography = () => {
-  // Card 1: Top Home Districts
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/employees')
+      .then(res => res.json())
+      .then(data => setEmployees(data || []))
+      .catch(err => console.error(err));
+  }, []);
+
+  // 1. Top Home Districts
+  const districtCounts = {};
+  employees.forEach(emp => {
+    let dist = emp.permanent_district || emp.present_district;
+    if (!dist || dist.trim() === '') dist = 'Unknown';
+    else dist = dist.trim().toUpperCase();
+    districtCounts[dist] = (districtCounts[dist] || 0) + 1;
+  });
+
+  const sortedDistricts = Object.entries(districtCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  
   const districtsOptions = {
     indexAxis: 'y',
     responsive: true,
@@ -34,16 +53,37 @@ const DashboardGeography = () => {
     }
   };
   const districtsData = {
-    labels: ['Unknown', 'Cuddalore', 'Salem', 'Erode', 'Namakkal', 'Krishna', 'Tirunelveli', 'Krishnagiri', 'Ariyalur'],
+    labels: sortedDistricts.map(d => d[0]),
     datasets: [{
-      data: [12, 10, 10, 8, 6, 4, 4, 4, 3],
-      backgroundColor: '#dc2626', // Red
+      data: sortedDistricts.map(d => d[1]),
+      backgroundColor: '#dc2626',
       borderRadius: 4,
       barPercentage: 0.6
     }]
   };
 
-  // Card 2: Organisation Rollup (Doughnut)
+  // 2. Organisation Rollup
+  let ossCount = 0;
+  let officeCount = 0;
+  const ceatTeam = [];
+
+  employees.forEach(emp => {
+    const site = (emp.cm_site || '').toLowerCase();
+    const dept = (emp.department || '').toLowerCase();
+    const vendor = (emp.vendor || '').toLowerCase();
+    
+    if (site.includes('ceat') || vendor.includes('ceat')) {
+      ceatTeam.push(emp.name);
+    } else if (dept.includes('office') || dept.includes('hr') || dept.includes('admin') || vendor.includes('tehr')) {
+      officeCount++;
+    } else {
+      ossCount++;
+    }
+  });
+
+  const totalManpower = employees.length;
+  const ceatCount = ceatTeam.length;
+
   const orgOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -59,7 +99,7 @@ const DashboardGeography = () => {
   const orgData = {
     labels: ['OSS', 'Office', 'CEAT'],
     datasets: [{
-      data: [136, 10, 0],
+      data: [ossCount, officeCount, ceatCount],
       backgroundColor: ['#dc2626', '#64748b', '#f59e0b'],
       borderWidth: 2,
       borderColor: '#ffffff'
@@ -107,19 +147,19 @@ const DashboardGeography = () => {
           {/* KPI Cards */}
           <div className="grid grid-cols-4 gap-2 mb-4">
             <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#dc2626]">136</div>
+              <div className="font-mono text-2xl font-black text-[#dc2626]">{ossCount}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">OSS</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#64748b]">10</div>
+              <div className="font-mono text-2xl font-black text-[#64748b]">{officeCount}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">OFFICE</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#f59e0b]">0</div>
+              <div className="font-mono text-2xl font-black text-[#f59e0b]">{ceatCount}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">CEAT</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#0ea5e9]">146</div>
+              <div className="font-mono text-2xl font-black text-[#0ea5e9]">{totalManpower}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">TOTAL</div>
             </div>
           </div>
@@ -128,16 +168,18 @@ const DashboardGeography = () => {
             <Doughnut data={orgData} options={orgOptions} />
           </div>
 
-          <div className="border-t border-gray-100 pt-4">
-             <h4 className="text-gray-700 text-[10px] font-bold tracking-widest uppercase flex items-center mb-3">
-              <span className="w-1.5 h-1.5 rotate-45 bg-[#f59e0b] mr-2"></span> CEAT TEAM • 3
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-medium text-gray-700 border-l-2 border-l-[#f59e0b]">Munaf</span>
-              <span className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-medium text-gray-700 border-l-2 border-l-[#f59e0b]">Manoj Sadhu</span>
-              <span className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-medium text-gray-700 border-l-2 border-l-[#f59e0b]">Vikram Dass</span>
+          {ceatTeam.length > 0 && (
+            <div className="border-t border-gray-100 pt-4">
+               <h4 className="text-gray-700 text-[10px] font-bold tracking-widest uppercase flex items-center mb-3">
+                <span className="w-1.5 h-1.5 rotate-45 bg-[#f59e0b] mr-2"></span> CEAT TEAM • {ceatCount}
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {ceatTeam.map((name, i) => (
+                  <span key={i} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-medium text-gray-700 border-l-2 border-l-[#f59e0b]">{name}</span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
       </div>

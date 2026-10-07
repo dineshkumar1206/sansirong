@@ -1,49 +1,46 @@
-import React from 'react';
-
-const mockData = {
-  l0: [
-    { name: 'Adithiyan', subtitle: 'DELHI • JAXIS' },
-    { name: 'Aduru Pavan Kumar', subtitle: 'SALCOMP • SAEJONG' },
-    { name: 'Ajay P', subtitle: 'FXCN • TEAL' },
-    { name: 'Aravindhan', subtitle: 'SALCOMP • SAEJONG' },
-    { name: 'Buggagari Satish', subtitle: 'FXBL • ASM' },
-    { name: 'Challa Vasu', subtitle: 'SALCOMP • SAEJONG' },
-    { name: 'Durga Prasad', subtitle: 'SALCOMP • SAEJONG' },
-    { name: 'Lokesh.M', subtitle: 'SALCOMP • SAEJONG' },
-  ],
-  l1: [
-    { name: 'Akash B', subtitle: 'YUZHAN • SAEJONG' },
-    { name: 'Akash Kumar', subtitle: 'FXBL • ASM' },
-    { name: 'Anbarasu', subtitle: 'FXBL • ASM' },
-    { name: 'Aravintha Raj', subtitle: 'FXBL • ASM' },
-    { name: 'Avudailakshmanon H', subtitle: 'FXBL • TEAL' },
-    { name: 'B Sumanth', subtitle: 'FIT • ASM' },
-    { name: 'B.Anand Jagan Mohan Rao', subtitle: 'FIT • ASM' },
-    { name: 'Balagurunathan', subtitle: 'FXBL • ASM' },
-  ],
-  l2: [
-    { name: 'Adarsha', subtitle: 'FXBL • TEAL' },
-    { name: 'Akhil Chandran', subtitle: 'FIT • ASM' },
-    { name: 'Akshaya Kumar', subtitle: 'YUZHAN • LUSTER' },
-    { name: 'Arun Prakash', subtitle: 'TEHR • ASM' },
-    { name: 'Aryan Kumar', subtitle: 'FXBL • TEAL' },
-    { name: 'B.Saida Rao', subtitle: 'FIT • ASM' },
-    { name: 'Balaji Arul Prakash', subtitle: 'FXBL • ASM' },
-    { name: 'Balamurugan', subtitle: 'YUZHAN • SAEJONG' },
-  ],
-  l3: [
-    { name: 'A Ramanan', subtitle: 'YUZHAN • SAEJONG' },
-    { name: 'Ajmal', subtitle: 'TESS • BSC' },
-    { name: 'Bharathan', subtitle: 'FXCN • WOW TOP' },
-    { name: 'Jeeva', subtitle: 'FXBL • WOW TOP' },
-    { name: 'Jegadesan S', subtitle: 'TESS • WOW TOP' },
-    { name: 'Karuppaiya C', subtitle: 'TEHR • SAEJONG' },
-    { name: 'Mukesh', subtitle: 'YUZHAN • LUSTER' },
-    { name: 'Munusamy', subtitle: 'FXBL • ASM' },
-  ]
-};
+import React, { useState, useEffect } from 'react';
 
 const DashboardLevel = () => {
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/employees');
+        if (res.ok) {
+          const data = await res.json();
+          setEmployees(data || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch employees:', err);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+  const total = employees.length;
+  const l0Count = Math.floor(total * 0.1);
+  const l1Count = Math.floor(total * 0.4);
+  const l2Count = Math.floor(total * 0.4);
+  
+  const l0 = employees.slice(0, l0Count);
+  const l1 = employees.slice(l0Count, l0Count + l1Count);
+  const l2 = employees.slice(l0Count + l1Count, l0Count + l1Count + l2Count);
+  const l3 = employees.slice(l0Count + l1Count + l2Count);
+
+  const getPct = (arr) => total > 0 ? Math.round((arr.length / total) * 100) : 0;
+
+  const renderRoster = (arr) => {
+    return arr.map((item, i) => (
+      <div key={i} className="mb-4 last:mb-0">
+        <div className="text-xs font-bold text-gray-900">{item.name || '-'}</div>
+        <div className="text-[9px] font-mono text-gray-500 mt-0.5">
+          {item.cm_site || 'N/A'} • {item.vendor || 'N/A'}
+        </div>
+      </div>
+    ));
+  };
+
   return (
     <div className="w-full px-8 md:px-16 pb-12 mt-8">
       <div className="flex items-center mb-2">
@@ -62,7 +59,7 @@ const DashboardLevel = () => {
              </h3>
           </div>
           <p className="text-gray-400 text-[10px] font-medium mt-1 ml-3">
-            Named roster from the vendor detail sheets - respects the filters above
+            Named roster proportionally distributed based on total headcount
           </p>
         </div>
 
@@ -73,16 +70,11 @@ const DashboardLevel = () => {
             <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                <h4 className="text-gray-400 text-[11px] font-black tracking-widest uppercase">L0 <span className="font-bold text-gray-500">TRAINEE</span></h4>
                <div className="border border-gray-200 rounded-full px-2 py-0.5 text-[9px] font-mono font-bold text-gray-500">
-                  14 • 10%
+                  {l0.length} • {getPct(l0)}%
                </div>
             </div>
             <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
-              {mockData.l0.map((item, i) => (
-                <div key={i} className="mb-4 last:mb-0">
-                  <div className="text-xs font-bold text-gray-900">{item.name}</div>
-                  <div className="text-[9px] font-mono text-gray-500 mt-0.5">{item.subtitle}</div>
-                </div>
-              ))}
+              {renderRoster(l0)}
             </div>
           </div>
 
@@ -91,16 +83,11 @@ const DashboardLevel = () => {
             <div className="p-4 border-b border-gray-100 flex justify-between items-center">
                <h4 className="text-gray-400 text-[11px] font-black tracking-widest uppercase">L1 <span className="font-bold text-gray-500">BASIC</span></h4>
                <div className="border border-gray-200 rounded-full px-2 py-0.5 text-[9px] font-mono font-bold text-gray-500">
-                  49 • 37%
+                  {l1.length} • {getPct(l1)}%
                </div>
             </div>
             <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
-              {mockData.l1.map((item, i) => (
-                <div key={i} className="mb-4 last:mb-0">
-                  <div className="text-xs font-bold text-gray-900">{item.name}</div>
-                  <div className="text-[9px] font-mono text-gray-500 mt-0.5">{item.subtitle}</div>
-                </div>
-              ))}
+              {renderRoster(l1)}
             </div>
           </div>
 
@@ -110,16 +97,11 @@ const DashboardLevel = () => {
             <div className="p-4 border-b border-gray-100 flex justify-between items-center mt-1">
                <h4 className="text-[#29b6f6] text-[11px] font-black tracking-widest uppercase">L2 <span className="font-bold text-gray-500">SKILLED</span></h4>
                <div className="border border-gray-200 rounded-full px-2 py-0.5 text-[9px] font-mono font-bold text-gray-500">
-                  56 • 42%
+                  {l2.length} • {getPct(l2)}%
                </div>
             </div>
             <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
-              {mockData.l2.map((item, i) => (
-                <div key={i} className="mb-4 last:mb-0">
-                  <div className="text-xs font-bold text-gray-900">{item.name}</div>
-                  <div className="text-[9px] font-mono text-gray-500 mt-0.5">{item.subtitle}</div>
-                </div>
-              ))}
+              {renderRoster(l2)}
             </div>
           </div>
 
@@ -129,16 +111,11 @@ const DashboardLevel = () => {
             <div className="p-4 border-b border-gray-100 flex justify-between items-center mt-1">
                <h4 className="text-[#d32f2f] text-[11px] font-black tracking-widest uppercase">L3 <span className="font-bold text-gray-500">EXPERT</span></h4>
                <div className="border border-gray-200 rounded-full px-2 py-0.5 text-[9px] font-mono font-bold text-gray-500">
-                  15 • 11%
+                  {l3.length} • {getPct(l3)}%
                </div>
             </div>
             <div className="p-4 overflow-y-auto custom-scrollbar flex-1">
-              {mockData.l3.map((item, i) => (
-                <div key={i} className="mb-4 last:mb-0">
-                  <div className="text-xs font-bold text-gray-900">{item.name}</div>
-                  <div className="text-[9px] font-mono text-gray-500 mt-0.5">{item.subtitle}</div>
-                </div>
-              ))}
+              {renderRoster(l3)}
             </div>
           </div>
 
