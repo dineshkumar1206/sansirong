@@ -237,13 +237,7 @@ const DashboardContent = () => {
         </button>
       </div>
 
-      {/* Warning Message */}
-      <div className="mb-6">
-        <p className="text-[#ef4444] text-[10px] font-semibold tracking-wide flex items-center">
-          <span className="inline-block w-1.5 h-1.5 rotate-45 bg-[#ef4444] mr-2"></span>
-          Couldn't reach the Google Sheet (Failed to fetch). Showing last saved data. Live sync works only on the deployed Netlify site.
-        </p>
-      </div>
+
 
       {/* Filters Section */}
       <div className="space-y-3 mb-8 border-t border-gray-200 pt-4">

@@ -25,7 +25,7 @@ const Dashboard = () => {
       <DashboardGeography />
       <DashboardManpower/>   
       <DashboardInterview/>
-      <DashboardExits />
+      <DashboardExits />  
       <DashboardBirthday />
        </div>
   );

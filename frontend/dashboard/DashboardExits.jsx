@@ -1,51 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
 import { Search } from 'lucide-react'; // assuming lucide-react is used or I'll just use an SVG for search
 
-const exitsByVendorData = [
-  { name: 'WOW TOP', value: 2, fill: '#d32f2f' },
-  { name: 'JAXIS', value: 2, fill: '#d32f2f' },
-  { name: 'JLK', value: 3, fill: '#d32f2f' },
-  { name: 'B/FORGE', value: 4, fill: '#d32f2f' },
-  { name: 'INDO MIM', value: 6, fill: '#d32f2f' },
-  { name: 'LUSTER', value: 10, fill: '#d32f2f' },
-  { name: 'TEAL', value: 14, fill: '#d32f2f' },
-  { name: 'SAEJONG', value: 24, fill: '#d32f2f' },
-  { name: 'ASM', value: 36, fill: '#d32f2f' }
-];
-
-const attritionRateData = [
-  { name: 'B/FORGE', value: 100, fill: '#d32f2f' },
-  { name: 'JLK', value: 100, fill: '#d32f2f' },
-  { name: 'INDO MIM', value: 65, fill: '#ef4444' },
-  { name: 'JAXIS', value: 45, fill: '#f87171' },
-  { name: 'ASM', value: 38, fill: '#f97316' },
-  { name: 'LUSTER', value: 30, fill: '#fb923c' },
-  { name: 'SAEJONG', value: 28, fill: '#f59e0b' },
-  { name: 'TEAL', value: 25, fill: '#fbbf24' },
-  { name: 'WOW TOP', value: 22, fill: '#fcd34d' }
-];
-
-const tenureData = [
-  { name: '<1 mo', value: 6, fill: '#0ea5e9' },
-  { name: '1-3', value: 15, fill: '#0ea5e9' },
-  { name: '3-6', value: 28, fill: '#0ea5e9' },
-  { name: '6-12', value: 12, fill: '#0ea5e9' },
-  { name: '12+', value: 0, fill: '#0ea5e9' }
-];
-
-const tableData = [
-  { name: 'Nagarajan K', vendor: 'ASM', site: 'FXBL', joined: '12/9/2024', left: '7/1/2025', tenure: '4 mo', cert: '—', reason: 'Not specified' },
-  { name: 'Tharun Pranav', vendor: 'ASM', site: 'FXBL', joined: '15-03-2025', left: '17-07-2025', tenure: '4 mo', cert: 'L1', reason: 'Upto Education' },
-  { name: 'Saranesh', vendor: 'ASM', site: 'FXBL', joined: '15-03-2025', left: '17-07-2025', tenure: '4 mo', cert: 'L1', reason: 'Upto Education' },
-  { name: 'Baranitharan', vendor: 'ASM', site: 'FXBL', joined: '15-03-2025', left: '30/06/2025', tenure: '4 mo', cert: '—', reason: 'Own Business' },
-  { name: 'Arulmozhi Selvan', vendor: 'ASM', site: 'FXBL', joined: '5/12/2025', left: '6/9/2025', tenure: '—', cert: '—', reason: 'Not specified' },
-  { name: 'Balaji', vendor: 'B/FORGE', site: 'TEHR', joined: '4/1/2025', left: '—', tenure: '—', cert: '—', reason: 'Personal Problem' },
-  { name: 'Aswin J', vendor: 'B/FORGE', site: 'TEHR', joined: '4/2/2025', left: '—', tenure: '—', cert: '—', reason: 'Not specified' },
-  { name: 'Gokulakrishnan', vendor: 'TEAL', site: 'PTI', joined: '5/5/2025', left: '28-05-2025', tenure: '1 mo', cert: '—', reason: 'Personal Problem' }
-];
-
 const DashboardExits = () => {
+  const [stats, setStats] = useState({
+    totalExits: 0,
+    avgTenure: 0,
+    attritionRate: 0,
+    exitsByVendorData: [],
+    attritionRateData: [],
+    tenureData: [],
+    tableData: []
+  });
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/exits')
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => console.error('Failed to fetch exits data', err));
+  }, []);
+
+  const filteredTableData = stats.tableData.filter(row => {
+    const term = searchTerm.toLowerCase();
+    return (
+      (row.name && row.name.toLowerCase().includes(term)) ||
+      (row.vendor && row.vendor.toLowerCase().includes(term)) ||
+      (row.site && row.site.toLowerCase().includes(term)) ||
+      (row.reason && row.reason.toLowerCase().includes(term))
+    );
+  });
   return (
     <div className="w-full font-sans px-8 md:px-16 pb-12 mt-8">
       {/* Section Header */}
@@ -72,7 +56,7 @@ const DashboardExits = () => {
               <p className="text-[10px] text-gray-400 pl-3 leading-tight mt-1">Employees<br/>who have<br/>left</p>
             </div>
             <div className="font-mono tracking-tighter text-5xl font-black text-red-400 italic mt-6">
-              98
+              {stats.totalExits}
             </div>
           </div>
           <div className="w-[1px] bg-gray-100"></div>
@@ -87,7 +71,7 @@ const DashboardExits = () => {
               <p className="text-[10px] text-gray-400 pl-3 leading-tight mt-1">Months before<br/>leaving</p>
             </div>
             <div className="font-mono tracking-tighter text-5xl font-black text-red-400 italic mt-6">
-              10
+              {stats.avgTenure}
             </div>
           </div>
         </div>
@@ -104,7 +88,7 @@ const DashboardExits = () => {
             <p className="text-[10px] text-gray-400 pl-3 leading-tight mt-1">Exits vs total<br/>workforce</p>
           </div>
           <div className="font-mono tracking-tighter text-5xl font-black text-red-400 italic mt-6 flex items-baseline">
-            38<span className="text-2xl ml-1">%</span>
+            {stats.attritionRate}<span className="text-2xl ml-1">%</span>
           </div>
         </div>
 
@@ -121,7 +105,7 @@ const DashboardExits = () => {
           </div>
           <div className="h-40 mt-4 -ml-4">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={exitsByVendorData} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
+              <BarChart data={stats.exitsByVendorData} layout="vertical" margin={{ top: 0, right: 10, left: 10, bottom: 0 }}>
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#6b7280', fontWeight: 'bold' }} width={60} />
                 <Bar dataKey="value" fill="#d32f2f" radius={[0, 4, 4, 0]} barSize={8} />
@@ -143,11 +127,11 @@ const DashboardExits = () => {
           </div>
           <div className="h-40 mt-4 -ml-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={attritionRateData} margin={{ top: 10, right: 0, left: -20, bottom: 20 }}>
+              <BarChart data={stats.attritionRateData} margin={{ top: 10, right: 0, left: -20, bottom: 20 }}>
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#9ca3af' }} tickFormatter={(val) => `${val}%`} ticks={[0, 20, 40, 60, 80, 100]} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#6b7280', angle: -45, textAnchor: 'end', dy: 5, fontWeight: 'bold' }} interval={0} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={12}>
-                  {attritionRateData.map((entry, index) => (
+                  {stats.attritionRateData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
                 </Bar>
@@ -169,7 +153,7 @@ const DashboardExits = () => {
           </div>
           <div className="h-40 mt-4 -ml-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={tenureData} margin={{ top: 10, right: 0, left: -20, bottom: 5 }}>
+              <BarChart data={stats.tenureData} margin={{ top: 10, right: 0, left: -20, bottom: 5 }}>
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#9ca3af' }} ticks={[0, 5, 10, 15, 20, 25, 30]} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#6b7280', fontWeight: 'bold' }} />
                 <Bar dataKey="value" fill="#0ea5e9" radius={[4, 4, 0, 0]} barSize={24} />
@@ -208,16 +192,18 @@ const DashboardExits = () => {
                 type="text" 
                 className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-red-500" 
                 placeholder="Search exited employees..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#0f172a] text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+        <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
+          <table className="w-full text-left border-collapse relative">
+            <thead className="sticky top-0 z-10 bg-[#0f172a] shadow-sm">
+              <tr className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
                 <th className="px-6 py-3">Name</th>
                 <th className="px-4 py-3">Vendor</th>
                 <th className="px-4 py-3">Site</th>
@@ -228,8 +214,8 @@ const DashboardExits = () => {
                 <th className="px-6 py-3">Reason</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-xs font-medium text-gray-700">
-              {tableData.map((row, idx) => (
+            <tbody className="divide-y divide-gray-100 text-xs font-medium text-gray-700 bg-white">
+              {filteredTableData.length > 0 ? filteredTableData.map((row, idx) => (
                 <tr key={idx} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 font-bold text-gray-900">{row.name}</td>
                   <td className="px-4 py-4">{row.vendor}</td>
@@ -246,7 +232,13 @@ const DashboardExits = () => {
                   </td>
                   <td className="px-6 py-4 text-gray-500">{row.reason}</td>
                 </tr>
-              ))}
+              )) : (
+                <tr>
+                  <td colSpan="8" className="px-6 py-8 text-center text-gray-500 bg-white">
+                    No exited employees found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

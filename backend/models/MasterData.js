@@ -10,8 +10,7 @@ const MasterData = sequelize.define('master_data', {
   s_no: { type: DataTypes.FLOAT },
   sipl_id_no: {
     type: DataTypes.STRING(50),
-    unique: true,
-    allowNull: false,
+    allowNull: true,
   },
   vendor: { type: DataTypes.STRING(50) },
   cm_site: { type: DataTypes.STRING(50) },

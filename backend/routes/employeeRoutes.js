@@ -12,4 +12,16 @@ router.get('/dashboard-stats', getDashboardStats);
 // Route to get all employees
 router.get('/employees', getEmployees);
 
+const { getInterviewStats, getInterviewList, getExitsData, getBirthdays } = require('../controller/employeeController');
+
+// Routes for Interview List
+router.get('/interview-stats', getInterviewStats);
+router.get('/interviews', getInterviewList);
+
+// Routes for Exits
+router.get('/exits', getExitsData);
+
+// Route for Birthdays
+router.get('/birthdays', getBirthdays);
+
 module.exports = router;

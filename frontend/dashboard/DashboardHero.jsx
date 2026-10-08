@@ -1,7 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BsClipboard } from 'react-icons/bs';
+import InterviewListModal from './InterviewListModal';
 
 const DashboardHero = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [stats, setStats] = useState({
+    totalCandidates: 0,
+    ratedGood: 0,
+    joined: 0,
+    techRatingMix: { good: 0, average: 0, low: 0 }
+  });
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/interview-stats')
+      .then(res => res.json())
+      .then(data => {
+        setStats({
+          totalCandidates: data.totalCandidates || 0,
+          ratedGood: data.ratedGood || 0,
+          joined: data.joined || 0,
+          techRatingMix: data.techRatingMix || { good: 0, average: 0, low: 0 }
+        });
+      })
+      .catch(err => console.error('Failed to fetch interview stats', err));
+  }, []);
   return (
     <div className="w-full bg-white flex items-center justify-between px-8 md:px-16 py-4 shadow-sm border-b border-gray-200">
       {/* Left Section: Logos and Titles */}
@@ -41,11 +63,13 @@ const DashboardHero = () => {
 
       {/* Right Section: Action Buttons */}
       <div className="flex items-center space-x-3">
-        {/* Live View Button */}
-        <button className="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
-          <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.7)]"></div>
-          <span>LIVE VIEW</span>
-        </button>
+        {/* Back to website Button */}
+        <a href="/" className="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors cursor-pointer no-underline">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span>Back to website</span>
+        </a>
 
         {/* Add Employee Button */}
         <button className="flex items-center space-x-1 bg-green-600 text-white rounded-md px-4 py-2 text-sm font-bold shadow-md hover:bg-green-700 transition-colors">
@@ -54,11 +78,20 @@ const DashboardHero = () => {
         </button>
 
         {/* Interview List Button */}
-        <button className="flex items-center space-x-2 bg-[#8bc34a] text-black rounded-md px-4 py-2 text-sm font-bold shadow-md hover:bg-[#7cb342] transition-colors">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center space-x-2 bg-[#8bc34a] text-black rounded-md px-4 py-2 text-sm font-bold shadow-md hover:bg-[#7cb342] transition-colors cursor-pointer"
+        >
           <BsClipboard className="text-base" />
           <span>Interview List</span>
         </button>
       </div>
+
+      <InterviewListModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        stats={stats}
+      />
     </div>
   );
 };

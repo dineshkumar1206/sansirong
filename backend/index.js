@@ -4,6 +4,8 @@ const cors = require('cors');
 
 // Import modular files
 const { syncDB } = require('./models/MasterData');
+const { InterviewList } = require('./models/InterviewList'); // Ensure this model is loaded
+const { ExitEmployee } = require('./models/ExitEmployee'); // Ensure this model is loaded
 const employeeRoutes = require('./routes/employeeRoutes');
 
 const app = express();

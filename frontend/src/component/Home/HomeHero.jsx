@@ -9,6 +9,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { FaXTwitter } from "react-icons/fa6";
+import HomeVideo from "./HomeVideo";
 
 import {
   FaFacebookF,
@@ -171,6 +172,8 @@ const HomeHero = ({ t }) => {
           </h3>
         </div>
       </section>
+
+      <HomeVideo />
 
       {/* Section 2 - Blur */}
       <section className=" w-full  relative  flex   pt-10 px-8 md:px-0  bg-black">

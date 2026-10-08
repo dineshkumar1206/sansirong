@@ -1,23 +1,18 @@
-import React from 'react';
-
-const birthdays = [
-  { day: '2', month: 'OCT', name: 'Pradeep Kumar R', desc: 'TEHR • OSS' },
-  { day: '3', month: 'OCT', name: 'Mano Deva Jebas', desc: 'FXCN • OSS' },
-  { day: '4', month: 'OCT', name: 'Santhosh S', desc: 'FXBL • OSS' },
-  { day: '4', month: 'OCT', name: 'Pindi Gopi', desc: 'YUZHAN • OSS' },
-  { day: '9', month: 'OCT', name: 'Lokesh.M', desc: 'SALCOMP • OSS' },
-  { day: '11', month: 'OCT', name: 'Gowtham S', desc: 'FXBL • OSS' },
-  { day: '19', month: 'OCT', name: 'Shyam Kumar', desc: 'YUZHAN • OSS' },
-  { day: '21', month: 'OCT', name: 'Sedhumadhavan S', desc: 'SALCOMP • OSS' },
-  { day: '23', month: 'OCT', name: 'Vignesh M', desc: 'Office • Office' },
-  { day: '25', month: 'OCT', name: 'Nithyanantham', desc: 'FXCN • OSS' },
-  { day: '29', month: 'OCT', name: 'Anbarasu', desc: 'FXBL • OSS' },
-  { day: '30', month: 'OCT', name: 'Saravanan L', desc: 'PTI • OSS' },
-  { day: '30', month: 'OCT', name: 'Abijith', desc: 'TEHR • OSS' },
-  { day: '30', month: 'OCT', name: 'Charles C Kappen', desc: 'TEHR • OSS' },
-];
+import React, { useState, useEffect } from 'react';
 
 const DashboardBirthday = () => {
+  const [data, setData] = useState({
+    monthName: '',
+    count: 0,
+    birthdays: []
+  });
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/birthdays')
+      .then(res => res.json())
+      .then(result => setData(result))
+      .catch(err => console.error('Failed to fetch birthdays', err));
+  }, []);
   return (
     <div className="w-full font-sans px-8 md:px-16 pb-12 mt-8">
       {/* Section Header */}
@@ -36,10 +31,10 @@ const DashboardBirthday = () => {
           <div className="flex items-center gap-2 mb-1">
             <div className="w-1 h-4 bg-red-600"></div>
             <h3 className="font-black text-gray-900 tracking-wider text-sm uppercase">
-              October
+              {data.monthName || 'Loading...'}
             </h3>
             <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">
-              14
+              {data.count}
             </span>
           </div>
           <p className="text-[10px] text-gray-400 pl-3">
@@ -49,8 +44,8 @@ const DashboardBirthday = () => {
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {birthdays.map((item, index) => (
-            <div key={index} className="bg-gray-50 border border-gray-100 rounded-lg flex items-center p-3 relative overflow-hidden">
+          {data.birthdays.length > 0 ? data.birthdays.map((item, index) => (
+            <div key={index} className="bg-gray-50 border border-gray-100 rounded-lg flex items-center p-3 relative overflow-hidden hover:shadow-md transition-shadow">
               <div className="absolute left-0 top-1 bottom-1 w-[3px] bg-red-500 rounded-r-md"></div>
               
               <div className="pl-3 pr-4 flex flex-col items-center justify-center border-r border-gray-200">
@@ -58,12 +53,16 @@ const DashboardBirthday = () => {
                 <span className="text-gray-400 font-bold text-[8px] uppercase mt-1 tracking-widest">{item.month}</span>
               </div>
               
-              <div className="pl-4 flex flex-col justify-center">
-                <span className="text-gray-900 font-bold text-xs">{item.name}</span>
-                <span className="text-gray-400 font-mono text-[9px] mt-0.5">{item.desc}</span>
+              <div className="pl-4 flex flex-col justify-center truncate">
+                <span className="text-gray-900 font-bold text-xs truncate" title={item.name}>{item.name}</span>
+                <span className="text-gray-400 font-mono text-[9px] mt-0.5 truncate" title={item.desc}>{item.desc}</span>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full py-8 text-center text-gray-500 text-sm">
+              No birthdays found for {data.monthName || 'this month'}.
+            </div>
+          )}
         </div>
       </div>
 
