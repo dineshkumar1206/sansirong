@@ -13,7 +13,17 @@ import Languageinterpretation from "./component/Language interpretation/Language
 import Trading from "./component/Trading/Trading";
 import Language from "./component/Launguage";
 import Dashboard from "../dashboard/Dashboard";
+import Login from "./component/Login";
 import translations from "./translation.json";
+import { Navigate } from "react-router-dom";
+
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 const App = () => {
   const validNavbar = ["/"];
@@ -54,7 +64,8 @@ const App = () => {
         <Route path="/careers" element={<Careers t={t} />} />
         <Route path="/language" element={<Languageinterpretation t={t} />} />
         <Route path="/trading" element={<Trading t={t} />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       </Routes>
     </>
   );

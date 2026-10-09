@@ -198,7 +198,7 @@ function Navbar({ aboutScroll, t }) {
           {/* {t("careers")} */}
         </Link>
         <Link
-          to="/dashboard"
+          to="/login"
           onClick={closeMenu}
           className="text-[15px] transition-all duration-300 ease-in-out hover:text-white"
           style={{
@@ -210,7 +210,7 @@ function Navbar({ aboutScroll, t }) {
           }
           onMouseLeave={(e) => (e.target.style.textShadow = "none")}
         >
-          DASHBOARD
+          LOGIN
         </Link>
       </div>
 
@@ -286,9 +286,9 @@ function Navbar({ aboutScroll, t }) {
             <div className="w-full h-[2px] bg-[#fa160e] rounded-full"></div>
           )}
         </Link>
-        <Link to="/dashboard" onClick={closeMenu} className={` text-[15px]`}>
-          DASHBOARD
-          {location.pathname === "/dashboard" && (
+        <Link to="/login" onClick={closeMenu} className={` text-[15px]`}>
+          LOGIN
+          {location.pathname === "/login" && (
             <div className="w-full h-[2px] bg-[#fa160e] rounded-full"></div>
           )}
         </Link>
