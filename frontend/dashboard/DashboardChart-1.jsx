@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
@@ -28,7 +29,7 @@ const DashboardChart1 = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/dashboard-stats');
+        const res = await fetch(`${config.API_BASE_URL}/api/dashboard-stats`);
         if (res.ok) {
           const data = await res.json();
           setVendorData(data.vendors.sort((a,b) => b.count - a.count));

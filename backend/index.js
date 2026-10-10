@@ -11,7 +11,17 @@ const employeeRoutes = require('./routes/employeeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const authenticateToken = require('./middleware/authMiddleware');
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Local frontend development
+    'http://localhost:3000', // Alternative local frontend
+    'https://sansirong.vercel.app', // Vercel deployment
+    'https://www.sansirong.com', // Production domain
+    'https://sansirong.com'
+  ],
+  credentials: true
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Initialize Database Tables

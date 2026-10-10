@@ -1,8 +1,10 @@
+import config from '../src/config';
 import React, { useState, useRef, useEffect } from 'react';
 import { FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { BsGrid3X3GapFill } from 'react-icons/bs';
 import * as XLSX from 'xlsx';
 import { DATA } from './mockData';
+import AddRequirementModal from './AddRequirementModal';
 
 const DashboardContent = () => {
   const [selectedVendor, setSelectedVendor] = useState('ALL');
@@ -17,10 +19,11 @@ const DashboardContent = () => {
     cmSitesCount: "0",
     matrix: []
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchDashboardStats = async () => {
     try {
-      const url = new URL('http://localhost:5000/api/dashboard-stats');
+      const url = new URL(`${config.API_BASE_URL}/api/dashboard-stats`);
       if (selectedVendor !== 'ALL') url.searchParams.append('vendor', selectedVendor);
       if (selectedSite !== 'ALL') url.searchParams.append('site', selectedSite);
 
@@ -138,7 +141,7 @@ const DashboardContent = () => {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const response = await fetch('http://localhost:5000/api/upload-master', {
+      const response = await fetch(`${config.API_BASE_URL}/api/upload-master`, {
         method: 'POST',
         body: formData,
       });
@@ -216,7 +219,7 @@ const DashboardContent = () => {
         
       {/* Action Bar */}
       <div className="flex items-center space-x-3 mb-4">
-        <button className="bg-gradient-to-r from-[#29b6f6] to-[#0288d1] text-white px-5 py-2 rounded-md font-bold text-sm shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center cursor-pointer">
+        <button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-[#29b6f6] to-[#0288d1] text-white px-5 py-2 rounded-md font-bold text-sm shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center cursor-pointer">
           <span className="mr-2 text-lg leading-none">+</span> Add Requirement
         </button>
         <button className="bg-[#d32f2f] text-white px-5 py-2 rounded-md font-bold text-sm shadow-md hover:bg-[#b71c1c] active:scale-95 transition-all flex items-center cursor-pointer">
@@ -326,6 +329,8 @@ const DashboardContent = () => {
         ))}
 
       </div>
+
+      {isModalOpen && <AddRequirementModal onClose={() => setIsModalOpen(false)} />}
 
     </div>
     </>

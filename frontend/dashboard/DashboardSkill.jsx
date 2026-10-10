@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 
 export const columns = ['Vendor \\ Site', 'FXBL', 'YUZHAN', 'TEHR', 'FIT', 'FXCN', 'TESS', 'PTI', 'CEAT', 'DELHI', 'FXBLPTI', 'WOWTEK', 'Total'];
@@ -26,7 +27,7 @@ const DashboardSkill = () => {
   useEffect(() => {
     const fetchMatrix = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/dashboard-stats');
+        const res = await fetch(`${config.API_BASE_URL}/api/dashboard-stats`);
         if (res.ok) {
           const data = await res.json();
           setMatrixRaw(data.matrix || []);

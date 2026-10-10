@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import InterviewListModal from './InterviewListModal';
@@ -12,7 +13,7 @@ const DashboardInterview = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/interview-stats')
+    fetch(`${config.API_BASE_URL}/api/interview-stats`)
       .then(res => res.json())
       .then(data => {
         setStats({

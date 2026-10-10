@@ -1,9 +1,12 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 import { BsClipboard } from 'react-icons/bs';
 import InterviewListModal from './InterviewListModal';
+import AddEmployeeModal from './AddEmployeeModal';
 
 const DashboardHero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [stats, setStats] = useState({
     totalCandidates: 0,
     ratedGood: 0,
@@ -12,7 +15,7 @@ const DashboardHero = () => {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/interview-stats')
+    fetch(`${config.API_BASE_URL}/api/interview-stats`)
       .then(res => res.json())
       .then(data => {
         setStats({
@@ -72,7 +75,10 @@ const DashboardHero = () => {
         </a>
 
         {/* Add Employee Button */}
-        <button className="flex items-center space-x-1 bg-green-600 text-white rounded-md px-4 py-2 text-sm font-bold shadow-md hover:bg-green-700 transition-colors">
+        <button 
+          onClick={() => setIsEmployeeModalOpen(true)}
+          className="flex items-center space-x-1 bg-green-600 text-white rounded-md px-4 py-2 text-sm font-bold shadow-md hover:bg-green-700 transition-colors cursor-pointer"
+        >
           <span className="text-lg leading-none mr-1">+</span>
           <span>Add Employee</span>
         </button>
@@ -92,6 +98,16 @@ const DashboardHero = () => {
         onClose={() => setIsModalOpen(false)} 
         stats={stats}
       />
+
+      {isEmployeeModalOpen && (
+        <AddEmployeeModal 
+          onClose={() => setIsEmployeeModalOpen(false)} 
+          onSuccess={() => {
+            // Optional: You could trigger a refresh of dashboard stats here
+            setIsEmployeeModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };

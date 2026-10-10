@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 
 const InterviewListModal = ({ isOpen, onClose, stats }) => {
@@ -8,7 +9,7 @@ const InterviewListModal = ({ isOpen, onClose, stats }) => {
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
-      fetch('http://localhost:5000/api/interviews')
+      fetch(`${config.API_BASE_URL}/api/interviews`)
         .then(res => res.json())
         .then(data => {
           setInterviews(data);

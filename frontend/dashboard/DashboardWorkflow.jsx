@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 
@@ -18,7 +19,7 @@ const DashboardWorkflow = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/employees');
+        const res = await fetch(`${config.API_BASE_URL}/api/employees`);
         if (res.ok) {
           const data = await res.json();
           setEmployees(data || []);

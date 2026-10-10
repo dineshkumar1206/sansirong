@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
@@ -25,7 +26,7 @@ const DashboardDemo = () => {
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/employees')
+    fetch(`${config.API_BASE_URL}/api/employees`)
       .then(res => res.json())
       .then(data => setEmployees(data || []))
       .catch(err => console.error(err));

@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 
 const DashboardBirthday = () => {
@@ -8,7 +9,7 @@ const DashboardBirthday = () => {
   });
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/birthdays')
+    fetch(`${config.API_BASE_URL}/api/birthdays`)
       .then(res => res.json())
       .then(result => setData(result))
       .catch(err => console.error('Failed to fetch birthdays', err));

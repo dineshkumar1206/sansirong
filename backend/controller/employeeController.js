@@ -534,6 +534,42 @@ const getBirthdays = async (req, res) => {
   }
 };
 
+const addEmployee = async (req, res) => {
+  try {
+    const data = req.body;
+    if (!data.sipl_id_no) {
+      return res.status(400).json({ error: 'SIPL ID is required' });
+    }
+
+    const existing = await MasterData.findOne({ where: { sipl_id_no: data.sipl_id_no } });
+    if (existing) {
+      return res.status(400).json({ error: 'Duplicate entry: SIPL ID already exists in the database' });
+    }
+
+    const newEmployee = await MasterData.create({
+      name: data.name,
+      sipl_id_no: data.sipl_id_no,
+      vendor: data.vendor,
+      cm_site: data.cm_site,
+      age: data.age,
+      gender: data.gender,
+      qualification: data.qualification,
+      doj: data.doj,
+      experience: data.experience,
+      mobile_number: data.mobile_number,
+      department: data.department,
+      permanent_district: data.permanent_district,
+      blood_group: data.blood_group,
+      mail_id: data.mail_id,
+    });
+
+    return res.status(201).json({ message: 'Employee added successfully to Master Data', employee: newEmployee });
+  } catch (error) {
+    console.error('Error adding employee:', error);
+    return res.status(500).json({ error: 'Failed to add employee' });
+  }
+};
+
 module.exports = {
   processExcelUpload,
   getDashboardStats,
@@ -541,5 +577,6 @@ module.exports = {
   getInterviewStats,
   getInterviewList,
   getExitsData,
-  getBirthdays
+  getBirthdays,
+  addEmployee
 };

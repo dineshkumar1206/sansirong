@@ -1,3 +1,4 @@
+import config from '../src/config';
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts';
 import { Search } from 'lucide-react'; // assuming lucide-react is used or I'll just use an SVG for search
@@ -15,7 +16,7 @@ const DashboardExits = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/exits')
+    fetch(`${config.API_BASE_URL}/api/exits`)
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error('Failed to fetch exits data', err));

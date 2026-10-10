@@ -12,7 +12,10 @@ router.get('/dashboard-stats', getDashboardStats);
 // Route to get all employees
 router.get('/employees', getEmployees);
 
-const { getInterviewStats, getInterviewList, getExitsData, getBirthdays } = require('../controller/employeeController');
+const { getInterviewStats, getInterviewList, getExitsData, getBirthdays, addEmployee } = require('../controller/employeeController');
+
+// Route to add a single employee
+router.post('/employee', addEmployee);
 
 // Routes for Interview List
 router.get('/interview-stats', getInterviewStats);
