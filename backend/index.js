@@ -28,9 +28,13 @@ app.use(express.json());
 syncDB();
 syncAdmin();
 
-// API Routes
-app.use('/api/auth', authRoutes); // Auth routes should not be protected
-app.use('/api', authenticateToken, employeeRoutes); // Protected routes
+// API Routes (Local)
+app.use('/api/auth', authRoutes); 
+app.use('/api', authenticateToken, employeeRoutes); 
+
+// API Routes (cPanel / Passenger subdirectory fallback)
+app.use('/sansirong/api/auth', authRoutes);
+app.use('/sansirong/api', authenticateToken, employeeRoutes);
 
 // Server Initialization
 const PORT = process.env.PORT || 5000;
