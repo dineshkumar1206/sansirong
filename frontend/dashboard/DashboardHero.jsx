@@ -65,30 +65,30 @@ const DashboardHero = () => {
       </div>
 
       {/* Right Section: Action Buttons */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-4">
         {/* Back to website Button */}
-        <a href="/" className="flex items-center space-x-2 bg-white border border-gray-300 rounded-md px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition-colors cursor-pointer no-underline">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="/" className="group flex items-center space-x-2 bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-semibold text-gray-700 hover:text-blue-600 hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer no-underline">
+          <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          <span>Back to website</span>
+          <span>Website</span>
         </a>
 
         {/* Add Employee Button */}
         <button 
           onClick={() => setIsEmployeeModalOpen(true)}
-          className="flex items-center space-x-1 bg-green-600 text-white rounded-md px-4 py-2 text-sm font-bold shadow-md hover:bg-green-700 transition-colors cursor-pointer"
+          className="group flex items-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-lg px-5 py-2.5 text-sm font-bold shadow-md shadow-green-500/30 hover:shadow-green-500/50 hover:-translate-y-0.5 hover:from-emerald-400 hover:to-green-500 transition-all duration-300 cursor-pointer"
         >
-          <span className="text-lg leading-none mr-1">+</span>
+          <span className="text-xl leading-none transform group-hover:rotate-90 transition-transform duration-300">+</span>
           <span>Add Employee</span>
         </button>
 
         {/* Interview List Button */}
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 bg-[#8bc34a] text-black rounded-md px-4 py-2 text-sm font-bold shadow-md hover:bg-[#7cb342] transition-colors cursor-pointer"
+          className="group flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg px-5 py-2.5 text-sm font-bold shadow-md shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 hover:from-blue-400 hover:to-indigo-500 transition-all duration-300 cursor-pointer"
         >
-          <BsClipboard className="text-base" />
+          <BsClipboard className="text-base transform group-hover:scale-110 transition-transform duration-300" />
           <span>Interview List</span>
         </button>
       </div>

@@ -19,6 +19,19 @@ function parseExcelDate(excelDate) {
   }
 }
 
+// Utility to check if a mapped record has any actual changes compared to the DB record
+function hasChanges(existing, mapped) {
+  for (const key in mapped) {
+    const oldVal = existing[key];
+    const newVal = mapped[key];
+    // Treat null, undefined, and empty string as equivalent
+    if (!oldVal && !newVal) continue;
+    // Compare stringified values
+    if (String(oldVal || '').trim() !== String(newVal || '').trim()) return true;
+  }
+  return false;
+}
+
 const processExcelUpload = async (req, res) => {
   try {
     if (!req.file) {
@@ -117,8 +130,10 @@ const processExcelUpload = async (req, res) => {
           }
 
           if (existingRecord) {
-            await existingRecord.update(mappedRecord);
-            masterMetrics.updated++;
+            if (hasChanges(existingRecord, mappedRecord)) {
+              await existingRecord.update(mappedRecord);
+              masterMetrics.updated++;
+            }
           } else {
             await MasterData.create(mappedRecord);
             masterMetrics.inserted++;
@@ -170,8 +185,10 @@ const processExcelUpload = async (req, res) => {
           }
 
           if (existingRecord) {
-            await existingRecord.update(mappedInterview);
-            interviewMetrics.updated++;
+            if (hasChanges(existingRecord, mappedInterview)) {
+              await existingRecord.update(mappedInterview);
+              interviewMetrics.updated++;
+            }
           } else {
             await InterviewList.create(mappedInterview);
             interviewMetrics.inserted++;
@@ -255,8 +272,10 @@ const processExcelUpload = async (req, res) => {
           }
 
           if (existingRecord) {
-            await existingRecord.update(mappedExit);
-            exitMetrics.updated++;
+            if (hasChanges(existingRecord, mappedExit)) {
+              await existingRecord.update(mappedExit);
+              exitMetrics.updated++;
+            }
           } else {
             await ExitEmployee.create(mappedExit);
             exitMetrics.inserted++;

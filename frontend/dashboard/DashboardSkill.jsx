@@ -72,27 +72,27 @@ const DashboardSkill = () => {
     if (count === 0) return 'bg-[#f8f9fa] text-transparent';
     if (!max) max = 1;
     const ratio = count / max;
-    if (ratio >= 0.7) return 'bg-[#d32f2f] text-white';
-    if (ratio >= 0.4) return 'bg-[#f28b82] text-white';
-    if (ratio >= 0.2) return 'bg-[#f6b2ac] text-white';
-    return 'bg-[#fad2cf] text-[#d32f2f]';
+    if (ratio >= 0.7) return 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-md shadow-red-500/40';
+    if (ratio >= 0.4) return 'bg-gradient-to-br from-red-400 to-red-500 text-white shadow-sm shadow-red-400/30';
+    if (ratio >= 0.2) return 'bg-gradient-to-br from-red-300 to-red-400 text-white';
+    return 'bg-gradient-to-br from-red-100 to-red-200 text-red-800';
   };
   const matrixMaxCount = Math.max(...matrixRaw.map(m => m.count), 1);
 
   return (
     <div className="w-full px-8 md:px-16 pb-8 bg-[#f4f7f9]">
       {/* Section Header */}
-      <div className="mb-4 flex items-center">
+      <div className="mb-4 flex items-center" data-aos="fade-right">
         <h2 className="text-[#d32f2f] text-xs font-extrabold tracking-widest uppercase flex items-center">
             <span className="inline-block w-1.5 h-1.5 rotate-45 bg-[#d32f2f] mr-2"></span> DEPLOYMENT & SKILL DISTRIBUTION
         </h2>
       </div>
 
       {/* Matrix Card */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-shadow duration-500" data-aos="fade-up" data-aos-delay="100">
         <div className="mb-6">
           <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-            <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> VENDOR × CM SITE DEPLOYMENT MATRIX
+            <span className="w-1 h-3 bg-gradient-to-b from-red-500 to-red-700 mr-2 rounded-full"></span> VENDOR × CM SITE DEPLOYMENT MATRIX
           </h3>
           <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3" style={{ zoom: 0.75 }}>
             Built from Master Data - click any vendor, site, or cell to filter the dashboard
@@ -127,11 +127,11 @@ const DashboardSkill = () => {
               {_matrixData.map((row, rIdx) => {
                 const isVendorSelected = row.vendor === selectedVendor;
                 return (
-                  <tr key={rIdx}>
+                  <tr key={rIdx} data-aos="fade-up" data-aos-delay={100 + (rIdx * 50)}>
                     <td 
                       onClick={() => setSelectedVendor(isVendorSelected ? null : row.vendor)}
-                      className={`font-mono text-[11px] font-bold py-2 px-2 rounded-md transition-colors whitespace-nowrap cursor-pointer
-                        ${isVendorSelected ? 'bg-[#d32f2f] text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}
+                      className={`font-mono text-[11px] font-bold py-3 px-3 rounded-xl transition-all duration-300 whitespace-nowrap cursor-pointer transform hover:scale-105 hover:translate-x-1
+                        ${isVendorSelected ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'}
                       `}
                     >
                       {row.vendor}
@@ -145,9 +145,10 @@ const DashboardSkill = () => {
                         <td key={cIdx} className="text-center p-0">
                           <div 
                             onClick={() => { setSelectedVendor(row.vendor); setSelectedSite(site); }}
-                            className={`mx-auto flex items-center justify-center rounded-md font-mono text-xs font-bold h-8 w-full min-w-[32px] transition-all cursor-pointer hover:opacity-80 
+                            className={`mx-auto flex items-center justify-center rounded-xl font-mono text-xs font-bold h-10 w-full min-w-[36px] transition-all duration-300 cursor-pointer 
                             ${getCellColor(count, matrixMaxCount)} 
-                            border-[2px] ${isHighlighted ? 'border-orange-400 shadow-sm' : 'border-transparent'}`}
+                            ${count > 0 ? 'hover:scale-[1.15] hover:-translate-y-1 hover:shadow-xl hover:z-10 relative' : 'hover:bg-gray-100'}
+                            border-[2px] ${isHighlighted ? 'border-orange-400 shadow-md ring-2 ring-orange-200' : 'border-transparent'}`}
                           >
                             {count > 0 ? count : ''}
                           </div>
@@ -156,7 +157,7 @@ const DashboardSkill = () => {
                     })}
                     
                     <td className="text-center p-0">
-                      <div className="mx-auto flex items-center justify-center bg-gray-50 rounded-md font-mono text-[11px] font-black h-8 w-full min-w-[32px] text-gray-800">
+                      <div className="mx-auto flex items-center justify-center bg-gray-50 rounded-xl font-mono text-[11px] font-black h-10 w-full min-w-[36px] text-gray-800 shadow-inner">
                         {row.total}
                       </div>
                     </td>

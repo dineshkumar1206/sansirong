@@ -1,6 +1,8 @@
 const config = {
-  // Use the live URL instead of localhost
-  API_BASE_URL: 'https://amigowebster.in/sansirong'
+  // Use localhost when running locally, and the live URL when deployed
+  API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : 'https://amigowebster.in/sansirong'
 };
 
 export default config;

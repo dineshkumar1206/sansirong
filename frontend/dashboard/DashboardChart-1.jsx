@@ -162,12 +162,12 @@ const DashboardChart1 = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         
         {/* Card 1: Headcount by Vendor */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 border border-gray-100 flex flex-col h-[350px]" data-aos="fade-up" data-aos-delay="100">
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> HEADCOUNT BY VENDOR
+              <span className="w-1 h-3 bg-gradient-to-b from-red-500 to-red-700 mr-2 rounded-full"></span> HEADCOUNT BY VENDOR
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3" style={{ zoom: 0.75 }}>
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3 group-hover:text-gray-700 transition-colors" style={{ zoom: 0.75 }}>
               Manpower supplier split across the deployment
             </p>
           </div>
@@ -177,12 +177,12 @@ const DashboardChart1 = () => {
         </div>
 
         {/* Card 2: Deployment by CM Site */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 border border-gray-100 flex flex-col h-[350px]" data-aos="fade-up" data-aos-delay="200">
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> DEPLOYMENT BY CM SITE
+              <span className="w-1 h-3 bg-gradient-to-b from-slate-500 to-slate-700 mr-2 rounded-full"></span> DEPLOYMENT BY CM SITE
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3" style={{ zoom: 0.75 }}>
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3 group-hover:text-gray-700 transition-colors" style={{ zoom: 0.75 }}>
               Where engineers are stationed
             </p>
           </div>
@@ -194,12 +194,12 @@ const DashboardChart1 = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 3: Skill Level Matrix */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[400px]">
+        <div className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 border border-gray-100 flex flex-col h-[400px]" data-aos="fade-up" data-aos-delay="300">
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> SKILL LEVEL MATRIX · BY CM SITE
+              <span className="w-1 h-3 bg-gradient-to-b from-blue-400 to-blue-600 mr-2 rounded-full"></span> SKILL LEVEL MATRIX · BY CM SITE
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3" style={{ zoom: 0.75 }}>
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3 group-hover:text-gray-700 transition-colors" style={{ zoom: 0.75 }}>
               L0 trainee → L3 expert certification progression
             </p>
           </div>
@@ -216,12 +216,12 @@ const DashboardChart1 = () => {
         </div>
 
         {/* Card 4: Overall Skill Pyramid */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[400px]">
+        <div className="group bg-white rounded-2xl p-6 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 border border-gray-100 flex flex-col h-[400px]" data-aos="fade-up" data-aos-delay="400">
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> OVERALL SKILL PYRAMID
+              <span className="w-1 h-3 bg-gradient-to-b from-orange-400 to-orange-600 mr-2 rounded-full"></span> OVERALL SKILL PYRAMID
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3" style={{ zoom: 0.75 }}>
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3 group-hover:text-gray-700 transition-colors" style={{ zoom: 0.75 }}>
               Certification mix across all {overallTotal} engineers
             </p>
           </div>
@@ -230,22 +230,22 @@ const DashboardChart1 = () => {
           </div>
           {/* Bottom KPI Cards */}
           <div className="flex gap-2">
-            <div className="bg-slate-800 rounded-lg p-2 md:p-3 text-center flex-1">
+            <div className="bg-slate-800 rounded-xl p-2 md:p-3 text-center flex-1 transform hover:scale-105 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default">
               <div className="font-mono text-xl md:text-2xl font-black text-[#94a3b8]">{totalL0}</div>
               <div className="text-[9px] font-bold text-[#94a3b8]">{Math.round((totalL0/overallTotal)*100)}%</div>
               <div className="text-[7px] md:text-[8px] font-bold text-[#94a3b8] uppercase tracking-widest mt-1">L0 - TRAINEE</div>
             </div>
-            <div className="bg-slate-800 rounded-lg p-2 md:p-3 text-center flex-1">
+            <div className="bg-slate-800 rounded-xl p-2 md:p-3 text-center flex-1 transform hover:scale-105 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-default">
               <div className="font-mono text-xl md:text-2xl font-black text-[#94a3b8]">{totalL1}</div>
               <div className="text-[9px] font-bold text-[#94a3b8]">{Math.round((totalL1/overallTotal)*100)}%</div>
               <div className="text-[7px] md:text-[8px] font-bold text-[#94a3b8] uppercase tracking-widest mt-1">L1 - BASIC</div>
             </div>
-            <div className="bg-slate-800 rounded-lg p-2 md:p-3 text-center flex-1">
+            <div className="bg-slate-800 rounded-xl p-2 md:p-3 text-center flex-1 transform hover:scale-105 hover:-translate-y-1 hover:shadow-lg shadow-sky-500/20 transition-all duration-300 cursor-default">
               <div className="font-mono text-xl md:text-2xl font-black text-[#0ea5e9]">{totalL2}</div>
               <div className="text-[9px] font-bold text-[#0ea5e9]">{Math.round((totalL2/overallTotal)*100)}%</div>
               <div className="text-[7px] md:text-[8px] font-bold text-[#0ea5e9] uppercase tracking-widest mt-1">L2 - SKILLED</div>
             </div>
-            <div className="bg-slate-800 rounded-lg p-2 md:p-3 text-center flex-1">
+            <div className="bg-slate-800 rounded-xl p-2 md:p-3 text-center flex-1 transform hover:scale-105 hover:-translate-y-1 hover:shadow-lg shadow-red-500/20 transition-all duration-300 cursor-default">
               <div className="font-mono text-xl md:text-2xl font-black text-[#d32f2f]">{totalL3}</div>
               <div className="text-[9px] font-bold text-[#d32f2f]">{Math.round((totalL3/overallTotal)*100)}%</div>
               <div className="text-[7px] md:text-[8px] font-bold text-[#d32f2f] uppercase tracking-widest mt-1">L3 - EXPERT</div>

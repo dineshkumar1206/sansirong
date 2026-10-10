@@ -196,21 +196,25 @@ const DashboardDemo = () => {
   return (
     <div className="w-full px-8 md:px-16 pb-8 bg-[#f4f7f9] pt-8">
       
-      <div className="mb-6">
+      <div className="mb-6 flex items-center" data-aos="fade-right">
         <h2 className="text-[#d32f2f] text-sm font-black tracking-widest uppercase flex items-center">
-          <span className="w-1.5 h-1.5 rotate-45 bg-[#d32f2f] mr-2"></span> DEMOGRAPHICS
+          <span className="w-1.5 h-1.5 rotate-45 bg-[#d32f2f] mr-2 shadow-sm"></span> DEMOGRAPHICS
         </h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Card 1 */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div 
+          className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[350px] relative overflow-hidden"
+          data-aos="fade-up" data-aos-delay="100"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-green-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> AGE PROFILE
+              <span className="w-1.5 h-3 bg-emerald-500 mr-2 rounded-full"></span> AGE PROFILE
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               A young, early-career workforce
             </p>
           </div>
@@ -220,12 +224,16 @@ const DashboardDemo = () => {
         </div>
 
         {/* Card 2 */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div 
+          className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[350px] relative overflow-hidden"
+          data-aos="fade-up" data-aos-delay="200"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-sky-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> QUALIFICATION
+              <span className="w-1.5 h-3 bg-blue-500 mr-2 rounded-full"></span> QUALIFICATION
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               Education background of engineers
             </p>
           </div>
@@ -235,12 +243,16 @@ const DashboardDemo = () => {
         </div>
 
         {/* Card 3 */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div 
+          className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[350px] relative overflow-hidden"
+          data-aos="fade-up" data-aos-delay="300"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> BLOOD GROUP REGISTRY
+              <span className="w-1.5 h-3 bg-amber-500 mr-2 rounded-full"></span> BLOOD GROUP REGISTRY
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               Emergency medical reference
             </p>
           </div>
@@ -250,12 +262,16 @@ const DashboardDemo = () => {
         </div>
 
         {/* Card 4 */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div 
+          className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[350px] relative overflow-hidden"
+          data-aos="fade-up" data-aos-delay="100"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-violet-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> ACCOMMODATION
+              <span className="w-1.5 h-3 bg-purple-500 mr-2 rounded-full"></span> ACCOMMODATION
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               Stay category of deployed staff
             </p>
           </div>
@@ -265,12 +281,16 @@ const DashboardDemo = () => {
         </div>
 
         {/* Card 5 */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div 
+          className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[350px] relative overflow-hidden"
+          data-aos="fade-up" data-aos-delay="200"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-400 to-red-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> FAITH MIX
+              <span className="w-1.5 h-3 bg-rose-500 mr-2 rounded-full"></span> FAITH MIX
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               Social composition
             </p>
           </div>
@@ -280,12 +300,16 @@ const DashboardDemo = () => {
         </div>
 
         {/* Card 6 */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[350px]">
+        <div 
+          className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[350px] relative overflow-hidden"
+          data-aos="fade-up" data-aos-delay="300"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-cyan-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> DEPARTMENT FUNCTION
+              <span className="w-1.5 h-3 bg-sky-500 mr-2 rounded-full"></span> DEPARTMENT FUNCTION
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               Functional assignment
             </p>
           </div>

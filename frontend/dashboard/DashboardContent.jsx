@@ -20,6 +20,9 @@ const DashboardContent = () => {
     matrix: []
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const fetchDashboardStats = async () => {
     try {
@@ -137,6 +140,18 @@ const DashboardContent = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    setIsUploading(true);
+    setUploadProgress(0);
+    setUploadSuccess(false);
+
+    // Simulate progress
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) return prev;
+        return prev + Math.floor(Math.random() * 15) + 5;
+      });
+    }, 400);
+
     // First send to backend API to store in MySQL database
     const formData = new FormData();
     formData.append('file', file);
@@ -146,14 +161,27 @@ const DashboardContent = () => {
         body: formData,
       });
       const data = await response.json();
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
       if (response.ok) {
-        alert('File successfully uploaded to database! Metrics: ' + JSON.stringify(data.metrics));
+        setUploadSuccess(true);
         fetchDashboardStats(); // Refresh stats after upload
+        
+        setTimeout(() => {
+          setUploadSuccess(false);
+          setIsUploading(false);
+          setUploadProgress(0);
+        }, 3000);
       } else {
+        setIsUploading(false);
         alert('Error uploading file to DB: ' + data.error);
       }
     } catch (err) {
       console.error('API Error:', err);
+      clearInterval(progressInterval);
+      setIsUploading(false);
       alert('Failed to connect to backend for database upload.');
     }
     
@@ -218,25 +246,71 @@ const DashboardContent = () => {
       }}>
         
       {/* Action Bar */}
-      <div className="flex items-center space-x-3 mb-4">
-        <button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-[#29b6f6] to-[#0288d1] text-white px-5 py-2 rounded-md font-bold text-sm shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center cursor-pointer">
-          <span className="mr-2 text-lg leading-none">+</span> Add Requirement
+      <div className="flex flex-wrap items-center gap-4 mb-6" data-aos="fade-down">
+        <button 
+          onClick={() => setIsModalOpen(true)} 
+          className="group flex items-center space-x-2 bg-gradient-to-r from-blue-400 to-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 hover:from-blue-500 hover:to-blue-700 active:scale-95 transition-all cursor-pointer"
+        >
+          <span className="text-xl leading-none transform group-hover:rotate-90 transition-transform duration-300 mr-1">+</span> 
+          <span>Add Requirement</span>
         </button>
-        <button className="bg-[#d32f2f] text-white px-5 py-2 rounded-md font-bold text-sm shadow-md hover:bg-[#b71c1c] active:scale-95 transition-all flex items-center cursor-pointer">
-          <FiRefreshCw className="mr-2" /> Sync from Google Sheet
+        
+        <button className="group flex items-center space-x-2 bg-gradient-to-r from-red-500 to-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-red-500/30 hover:shadow-red-500/50 hover:-translate-y-0.5 hover:from-red-600 hover:to-red-800 active:scale-95 transition-all cursor-pointer">
+          <FiRefreshCw className="transform group-hover:rotate-180 transition-transform duration-500 mr-1" /> 
+          <span>Sync from Google Sheet</span>
         </button>
+        
         <input 
           type="file" 
           accept=".xlsx, .xls" 
           ref={fileInputRef} 
           style={{ display: 'none' }} 
           onChange={handleFileUpload} 
+          disabled={isUploading}
         />
+        
         <button 
-          onClick={() => fileInputRef.current?.click()}
-          className="bg-white border border-gray-300 text-gray-600 px-5 py-2 rounded-md font-bold text-sm shadow-sm hover:bg-gray-50 active:scale-95 transition-all flex items-center cursor-pointer"
+          onClick={() => !isUploading && fileInputRef.current?.click()}
+          disabled={isUploading}
+          className={`group flex items-center justify-center space-x-2 px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all relative overflow-hidden ${
+            uploadSuccess 
+              ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-green-500/40 border-none'
+              : isUploading
+                ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                : 'bg-white border border-gray-200 text-gray-700 hover:text-blue-600 hover:border-blue-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer'
+          }`}
         >
-          <FiUpload className="mr-2" /> Upload file
+          {/* Progress Background */}
+          {isUploading && !uploadSuccess && (
+            <div 
+              className="absolute left-0 top-0 bottom-0 bg-blue-100 transition-all duration-300 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          )}
+
+          <div className="relative z-10 flex items-center">
+            {uploadSuccess ? (
+              <>
+                <svg className="w-5 h-5 mr-2 animate-[bounce_0.5s_ease-out]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Successfully Updated!</span>
+              </>
+            ) : isUploading ? (
+              <>
+                <svg className="animate-spin w-4 h-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-blue-600">Uploading {uploadProgress}%</span>
+              </>
+            ) : (
+              <>
+                <FiUpload className="mr-2 transform group-hover:-translate-y-1 transition-transform duration-300" /> 
+                <span>Upload file</span>
+              </>
+            )}
+          </div>
         </button>
       </div>
 
@@ -275,21 +349,27 @@ const DashboardContent = () => {
       {/* Top Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
         {[
-          { title: "ENGINEERS", value: stats.engineers, desc: "Deployed (matrix)", glow: "from-red-50" },
-          { title: "AVG AGE", value: stats.avgAge, desc: "Years - from records", glow: "from-gray-50" },
-          { title: "L2+ CERTIFIED", value: stats.l2Certified, desc: "Skilled / expert tier", glow: "from-orange-50", valueColor: "text-gray-900", suffixColor: "text-orange-500" },
-          { title: "VENDORS", value: stats.vendorsCount, desc: "Manpower suppliers", glow: "from-blue-50" },
-          { title: "CM SITES", value: stats.cmSitesCount, desc: "Deployment locations", glow: "from-green-50" }
+          { title: "ENGINEERS", value: stats.engineers, desc: "Deployed (matrix)", glow: "from-red-50", hoverShadow: "hover:shadow-red-500/20", icon: "🧑‍💻" },
+          { title: "AVG AGE", value: stats.avgAge, desc: "Years - from records", glow: "from-gray-50", hoverShadow: "hover:shadow-gray-500/20", icon: "⏳" },
+          { title: "L2+ CERTIFIED", value: stats.l2Certified, desc: "Skilled / expert tier", glow: "from-orange-50", valueColor: "text-gray-900", suffixColor: "text-orange-500", hoverShadow: "hover:shadow-orange-500/20", icon: "🏅" },
+          { title: "VENDORS", value: stats.vendorsCount, desc: "Manpower suppliers", glow: "from-blue-50", hoverShadow: "hover:shadow-blue-500/20", icon: "🏢" },
+          { title: "CM SITES", value: stats.cmSitesCount, desc: "Deployment locations", glow: "from-green-50", hoverShadow: "hover:shadow-green-500/20", icon: "📍" }
         ].map((stat, i) => (
-          <div key={i} className={`bg-white rounded-xl p-5 shadow-sm border border-gray-100 bg-gradient-to-tr ${stat.glow} to-white relative overflow-hidden`}>
-             <h3 className="text-gray-600 text-[10px] font-extrabold tracking-widest uppercase mb-1">{stat.title}</h3>
-             <div className="flex items-baseline">
+          <div 
+             key={i} 
+             data-aos="zoom-in-up" 
+             data-aos-delay={i * 100}
+             className={`group bg-white rounded-xl p-5 shadow-sm hover:shadow-xl ${stat.hoverShadow} hover:-translate-y-1.5 hover:scale-[1.02] transition-all duration-300 ease-out border border-gray-100 bg-gradient-to-tr ${stat.glow} to-white relative overflow-hidden cursor-default`}
+          >
+             <div className="absolute -right-4 -top-4 text-6xl opacity-0 group-hover:opacity-10 transform group-hover:-rotate-12 transition-all duration-500">{stat.icon}</div>
+             <h3 className="text-gray-600 text-[10px] font-extrabold tracking-widest uppercase mb-1 flex items-center">{stat.title}</h3>
+             <div className="flex items-baseline transform group-hover:scale-105 transition-transform duration-300 origin-left">
                 <span className={`font-mono tracking-tighter text-4xl font-black ${stat.valueColor || 'text-gray-900'}`}>
                     {stat.value.replace('%','')}
                 </span>
                 {stat.value.includes('%') && <span className={`font-mono tracking-tighter text-xl font-bold ml-1 ${stat.suffixColor || 'text-gray-900'}`}>%</span>}
              </div>
-             <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight" style={{ zoom: 0.75 }}>{stat.desc}</p>
+             <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight transition-colors group-hover:text-gray-800" style={{ zoom: 0.75 }}>{stat.desc}</p>
           </div>
         ))}
       </div>
@@ -314,15 +394,24 @@ const DashboardContent = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           
         {insights.map((insight, idx) => (
-          <div key={idx} className="bg-white rounded-xl p-4 shadow-sm relative" style={{ borderLeft: `4px solid ${insight.color}` }}>
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center">
-                 <span className="w-1.5 h-1.5 rotate-45 mr-2" style={{ backgroundColor: insight.color }}></span> {insight.label}
+          <div 
+            key={idx} 
+            data-aos="fade-up" 
+            data-aos-delay={idx * 150}
+            className="group bg-white rounded-xl p-4 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 hover:scale-[1.02] transition-all duration-300 ease-out relative overflow-hidden cursor-default" 
+            style={{ borderLeft: `4px solid ${insight.color}` }}
+          >
+            {/* Subtle background glow on hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300" style={{ backgroundColor: insight.color }}></div>
+            
+            <div className="flex justify-between items-start mb-2 relative z-10">
+              <h3 className="text-gray-500 text-[10px] font-extrabold tracking-widest uppercase flex items-center group-hover:text-gray-700 transition-colors duration-300">
+                 <span className="w-1.5 h-1.5 rotate-45 mr-2 transform group-hover:rotate-180 transition-transform duration-500" style={{ backgroundColor: insight.color }}></span> {insight.label}
               </h3>
-              <span className="text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase" style={{ backgroundColor: insight.color }}>{insight.tag}</span>
+              <span className="text-white text-[9px] font-bold px-2 py-1 rounded-full uppercase shadow-sm group-hover:shadow-md transform group-hover:scale-105 transition-all duration-300" style={{ backgroundColor: insight.color }}>{insight.tag}</span>
             </div>
-            <div className="font-mono tracking-tighter text-5xl font-black mb-2" style={{ color: insight.color }}>{insight.val}</div>
-            <p className="text-gray-500 text-[10px] font-light leading-tight" style={{ zoom: 0.75 }}>
+            <div className="font-mono tracking-tighter text-5xl font-black mb-2 relative z-10 transform group-hover:translate-x-1 transition-transform duration-300" style={{ color: insight.color }}>{insight.val}</div>
+            <p className="text-gray-500 text-[10px] font-light leading-tight relative z-10 group-hover:text-gray-800 transition-colors duration-300" style={{ zoom: 0.75 }}>
               {insight.note}
             </p>
           </div>

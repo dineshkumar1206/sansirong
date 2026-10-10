@@ -108,24 +108,29 @@ const DashboardGeography = () => {
   };
 
   return (
-    <div className="w-full px-8 md:px-16 pb-8 bg-[#f4f7f9] pt-8">
+    <div className="w-full px-8 md:px-16 pb-8 bg-[#f4f7f9] pt-8 font-sans">
       
-      <div className="mb-6 flex items-center">
+      <div className="mb-8 flex items-center" data-aos="fade-right">
         <h2 className="text-[#d32f2f] text-sm font-black tracking-widest uppercase flex items-center">
-          <span className="w-1.5 h-1.5 rotate-45 bg-[#d32f2f] mr-2"></span> GEOGRAPHY & ORGANISATION
+          <span className="w-1.5 h-1.5 rotate-45 bg-[#d32f2f] mr-2 shadow-sm"></span> GEOGRAPHY & ORGANISATION
         </h2>
-        <div className="flex-grow h-px bg-red-100 ml-4"></div>
+        <div className="flex-grow h-px bg-gradient-to-r from-red-100 to-transparent ml-4"></div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Card 1: Top Home Districts */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[520px]">
+        <div 
+           className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[520px] relative overflow-hidden"
+           data-aos="fade-up" data-aos-delay="100"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+          
           <div className="mb-4 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> TOP HOME DISTRICTS
+              <span className="w-1.5 h-3 bg-red-500 mr-2 rounded-full"></span> TOP HOME DISTRICTS
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               Where the workforce comes from (permanent district)
             </p>
           </div>
@@ -135,32 +140,37 @@ const DashboardGeography = () => {
         </div>
 
         {/* Card 2: Organisation Rollup */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col h-[520px]">
+        <div 
+           className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 flex flex-col h-[520px] relative overflow-hidden"
+           data-aos="fade-up" data-aos-delay="200"
+        >
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-500 to-slate-800 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"></div>
+          
           <div className="mb-6 flex-shrink-0">
             <h3 className="text-gray-900 text-[11px] font-black tracking-widest uppercase flex items-center">
-              <span className="w-1 h-3 bg-[#d32f2f] mr-2"></span> ORGANISATION ROLLUP
+              <span className="w-1.5 h-3 bg-slate-500 mr-2 rounded-full"></span> ORGANISATION ROLLUP
             </h3>
-            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3">
+            <p className="text-gray-500 text-[10px] font-light mt-1 leading-tight ml-3.5 group-hover:text-gray-700 transition-colors">
               Total Sansirong manpower across units
             </p>
           </div>
           
           {/* KPI Cards */}
           <div className="grid grid-cols-4 gap-2 mb-4">
-            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#dc2626]">{ossCount}</div>
+            <div className="bg-gray-50/50 hover:bg-red-50/50 transition-colors rounded-xl p-3 text-center border border-gray-100 flex flex-col items-center justify-center group/kpi cursor-default">
+              <div className="font-mono text-2xl font-black text-[#dc2626] group-hover/kpi:scale-110 transition-transform duration-300">{ossCount}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">OSS</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#64748b]">{officeCount}</div>
+            <div className="bg-gray-50/50 hover:bg-slate-100/50 transition-colors rounded-xl p-3 text-center border border-gray-100 flex flex-col items-center justify-center group/kpi cursor-default">
+              <div className="font-mono text-2xl font-black text-[#64748b] group-hover/kpi:scale-110 transition-transform duration-300">{officeCount}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">OFFICE</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#f59e0b]">{ceatCount}</div>
+            <div className="bg-gray-50/50 hover:bg-amber-50/50 transition-colors rounded-xl p-3 text-center border border-gray-100 flex flex-col items-center justify-center group/kpi cursor-default">
+              <div className="font-mono text-2xl font-black text-[#f59e0b] group-hover/kpi:scale-110 transition-transform duration-300">{ceatCount}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">CEAT</div>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-100 flex flex-col items-center justify-center">
-              <div className="font-mono text-2xl font-black text-[#0ea5e9]">{totalManpower}</div>
+            <div className="bg-gray-50/50 hover:bg-sky-50/50 transition-colors rounded-xl p-3 text-center border border-gray-100 flex flex-col items-center justify-center group/kpi cursor-default">
+              <div className="font-mono text-2xl font-black text-[#0ea5e9] group-hover/kpi:scale-110 transition-transform duration-300">{totalManpower}</div>
               <div className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">TOTAL</div>
             </div>
           </div>
@@ -176,7 +186,7 @@ const DashboardGeography = () => {
               </h4>
               <div className="flex flex-wrap gap-2">
                 {ceatTeam.map((name, i) => (
-                  <span key={i} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-md text-[10px] font-medium text-gray-700 border-l-2 border-l-[#f59e0b]">{name}</span>
+                  <span key={i} className="px-3 py-1 bg-white hover:bg-amber-50 hover:-translate-y-0.5 transition-all border border-gray-200 rounded-md text-[10px] font-medium text-gray-700 border-l-2 border-l-[#f59e0b] cursor-default shadow-sm hover:shadow">{name}</span>
                 ))}
               </div>
             </div>

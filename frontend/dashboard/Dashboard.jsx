@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import DashboardHero from './DashboardHero';
 import DashboardContent from './DashboardContent';
 import DashboardSkill from './DashboardSkill';
@@ -13,6 +15,15 @@ import DashboardExits from './DashboardExits';
 import DashboardBirthday from './DashboardBirthday';
 
 const Dashboard = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 600,
+      once: false,
+      mirror: true,
+      easing: 'ease-out'
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f4f7f9]">
       <DashboardHero />
